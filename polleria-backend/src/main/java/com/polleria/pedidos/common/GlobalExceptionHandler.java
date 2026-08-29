@@ -1,5 +1,6 @@
 package com.polleria.pedidos.common;
 
+import com.polleria.pedidos.pago.exception.PagoInvalidoException;
 import com.polleria.pedidos.pedido.exception.StockInsuficienteException;
 import com.polleria.pedidos.pedido.exception.TransicionEstadoInvalidaException;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(StockInsuficienteException.class)
     public ResponseEntity<Map<String, Object>> handleStockInsuficiente(StockInsuficienteException ex) {
+        return build(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(PagoInvalidoException.class)
+    public ResponseEntity<Map<String, Object>> handlePagoInvalido(PagoInvalidoException ex) {
         return build(HttpStatus.CONFLICT, ex.getMessage());
     }
 
