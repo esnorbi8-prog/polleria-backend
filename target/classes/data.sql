@@ -18,6 +18,20 @@ INSERT INTO productos (nombre, descripcion, precio, stock)
 SELECT * FROM (SELECT 'Combo familiar', 'Pollo entero + 2 gaseosas + papas extra', 89.00, 0) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM productos WHERE nombre = 'Combo familiar');
 
+INSERT INTO productos (nombre, descripcion, precio, stock)
+SELECT * FROM (SELECT 'Gallinazo a la brasa', 'Especialidad de nuestro chef kingpepa', 67.00, 15) AS tmp
+WHERE NOT EXISTS (SELECT 1 FROM productos WHERE nombre = 'Gallinazo a la brasa');
+
+-- Fuerza la actualización de la descripción si el gallinazo ya existía en la base de datos de H2
+UPDATE productos SET descripcion = 'Especialidad de nuestro chef kingpepa' WHERE nombre = 'Gallinazo a la brasa';
+
+INSERT INTO productos (nombre, descripcion, precio, stock)
+SELECT * FROM (SELECT 'Lagarto al sillao', 'Lagarto sideral bien bañado al sillao. Especialidad de la casa.', 45.00, 10) AS tmp
+WHERE NOT EXISTS (SELECT 1 FROM productos WHERE nombre = 'Lagarto al sillao');
+
+-- Fuerza actualización por si acaso
+UPDATE productos SET descripcion = 'Lagarto sideral bien bañado al sillao. Especialidad de la casa.' WHERE nombre = 'Lagarto al sillao';
+
 INSERT INTO clientes (nombre, telefono, email, direccion)
 SELECT * FROM (SELECT 'Juan Pérez', '999888777', 'juan.perez@example.com', 'Av. Los Álamos 123, Lima') AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM clientes WHERE telefono = '999888777');
@@ -31,7 +45,7 @@ WHERE NOT EXISTS (SELECT 1 FROM clientes WHERE telefono = '999888777');
 -- =========================================================
 
 INSERT INTO usuarios (nombre_completo, email, password_hash, rol, email_verificado, activo, fecha_creacion)
-SELECT * FROM (SELECT 'Administrador General' AS nombre_completo, 'admin@polleria.com' AS email,
+SELECT * FROM (SELECT 'Gustavo Fring' AS nombre_completo, 'admin@polleria.com' AS email,
     '$2b$10$evqWYdV6E0oZHUejQ3tA..70EUA/DoJsqzXScq1ttd0WtbNiGtC2u' AS password_hash,
     'ADMINISTRADOR' AS rol, TRUE AS email_verificado, TRUE AS activo, CURRENT_TIMESTAMP AS fecha_creacion) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = 'admin@polleria.com');
@@ -67,3 +81,5 @@ SELECT 'Cliente de Prueba', '999000111', 'cliente@polleria.com', 'Jr. de Prueba 
     (SELECT id FROM usuarios WHERE email = 'cliente@polleria.com')
 WHERE NOT EXISTS (SELECT 1 FROM clientes WHERE email = 'cliente@polleria.com')
   AND EXISTS (SELECT 1 FROM usuarios WHERE email = 'cliente@polleria.com');
+  
+UPDATE usuarios SET nombre_completo = 'Gustavo Fring' WHERE email = 'admin@polleria.com'; 
