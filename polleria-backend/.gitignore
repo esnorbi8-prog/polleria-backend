@@ -1,0 +1,7 @@
+.vscode/
+data/
+polleria-backend/target/
+polleria-backend/data/
+*.class
+.idea/
+*.iml
