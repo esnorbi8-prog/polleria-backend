@@ -1,0 +1,106 @@
+<div class="container-fluid py-4 px-4 bg-light min-vh-100">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold" style="color: #8b0000;"><i class="bi bi-bicycle text-pollos-red me-2"></i> Logística de Reparto</h2>
+    <div class="d-flex align-items-center gap-3">
+      <span class="text-muted fw-bold">Actualización automática activada <i class="bi bi-arrow-repeat spin"></i></span>
+      <button class="btn btn-outline-dark" (click)="cargarTablero(true)"><i class="bi bi-arrow-clockwise"></i> Refrescar</button>
+    </div>
+  </div>
+
+  <div *ngIf="cargando()" class="text-center py-5">
+    <div class="spinner-border text-pollos-red" role="status"></div>
+  </div>
+
+  <div *ngIf="errorMsg()" class="alert alert-danger fw-bold">
+    {{ errorMsg() }}
+  </div>
+
+  <div class="row g-4" *ngIf="!cargando()">
+    <!-- COLUMNA 1: LISTOS PARA LLEVAR -->
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0 bg-white" style="border-radius: 12px;">
+        <div class="card-header border-bottom py-3 d-flex justify-content-between align-items-center" style="background-color: #d1ecf1;">
+          <h5 class="mb-0 fw-bold text-info" style="color: #0c5460 !important;"><i class="bi bi-box-seam"></i> Listos para Llevar</h5>
+          <span class="badge bg-info text-dark rounded-pill fs-6">{{ pedidosListos().length }}</span>
+        </div>
+        <div class="card-body p-3" style="min-height: 50vh; overflow-y: auto;">
+          
+          <div *ngIf="pedidosListos().length === 0" class="text-center text-muted py-5">
+            <i class="bi bi-emoji-smile display-4 opacity-50"></i>
+            <p class="mt-3 fw-bold">No hay pedidos listos de tipo delivery por ahora</p>
+          </div>
+
+          <div class="card mb-3 border-info border-opacity-50" *ngFor="let p of pedidosListos()" style="border-left: 5px solid #17a2b8 !important;">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="fw-bold text-dark mb-0">Ticket #{{ p.id }}</h5>
+                <small class="text-muted">{{ p.fechaCreacion | date:'shortTime' }}</small>
+              </div>
+              
+              <div class="bg-light p-2 rounded mb-3">
+                <p class="mb-1 fw-bold"><i class="bi bi-geo-alt-fill text-danger"></i> Dirección de Entrega:</p>
+                <p class="mb-0 text-muted ms-3">{{ p.direccionEntrega || 'No especificada' }}</p>
+              </div>
+              
+              <div class="bg-light p-2 rounded mb-3">
+                <p class="mb-1 fw-bold"><i class="bi bi-person-fill text-primary"></i> Cliente:</p>
+                <p class="mb-0 text-muted ms-3">{{ p.cliente.nombre }} (Tel: {{ p.cliente.telefono }})</p>
+              </div>
+              
+              <button class="btn btn-info w-100 fw-bold py-2 text-white" style="background-color: #17a2b8;" (click)="iniciarReparto(p.id)">
+                <i class="bi bi-bicycle"></i> Iniciar Ruta de Reparto
+              </button>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+
+    <!-- COLUMNA 2: EN CAMINO -->
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0 bg-white" style="border-radius: 12px;">
+        <div class="card-header border-bottom py-3 d-flex justify-content-between align-items-center" style="background-color: #e2e3e5;">
+          <h5 class="mb-0 fw-bold text-secondary"><i class="bi bi-signpost-split"></i> En Camino</h5>
+          <span class="badge bg-secondary rounded-pill fs-6">{{ pedidosEnCamino().length }}</span>
+        </div>
+        <div class="card-body p-3" style="min-height: 50vh; overflow-y: auto;">
+
+          <div *ngIf="pedidosEnCamino().length === 0" class="text-center text-muted py-5">
+            <i class="bi bi-check-circle display-4 opacity-50"></i>
+            <p class="mt-3 fw-bold">No tienes entregas en curso en este momento</p>
+          </div>
+
+          <div class="card mb-3 border-secondary border-opacity-50 shadow-sm" *ngFor="let p of pedidosEnCamino()" style="border-left: 5px solid #6c757d !important;">
+            <div class="card-body bg-light">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="fw-bold text-dark mb-0">Ticket #{{ p.id }}</h5>
+              </div>
+              
+              <div class="bg-white p-2 rounded mb-3 border">
+                <p class="mb-1 fw-bold"><i class="bi bi-geo-alt-fill text-danger"></i> Entregando en:</p>
+                <p class="mb-0 fs-5 text-dark ms-3">{{ p.direccionEntrega }}</p>
+              </div>
+
+              <div class="bg-white p-2 rounded mb-3 border">
+                <p class="mb-1 fw-bold"><i class="bi bi-telephone-fill text-success"></i> Llamar al Cliente:</p>
+                <p class="mb-0 text-dark ms-3">{{ p.cliente.nombre }} - {{ p.cliente.telefono }}</p>
+              </div>
+
+              <!-- GPS MAPA EMBEBIDO -->
+              <div class="mb-3 rounded overflow-hidden shadow-sm border border-secondary" style="height: 200px;">
+                <iframe width="100%" height="200" style="border:0;" loading="lazy" [src]="getMapaUrl(p.direccionEntrega)"></iframe>
+              </div>
+              
+              <button class="btn btn-success w-100 fw-bold py-3 shadow-sm" (click)="marcarEntregado(p.id)">
+                <i class="bi bi-check2-all fs-5"></i> Confirmar Entrega
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

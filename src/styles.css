@@ -1,0 +1,94 @@
+/* Tema "Los Pollos Hermanos" */
+:root {
+  /* Variables de colores principales */
+  --pollos-yellow: #ffcc00;
+  --pollos-yellow-hover: #e6b800;
+  --pollos-red: #e31837;
+  --pollos-red-hover: #c4152f;
+  --pollos-white: #ffffff;
+  --pollos-dark: #2a2a2a;
+
+  /* Overrides de variables de Bootstrap 5 */
+  --bs-primary: var(--pollos-yellow);
+  --bs-secondary: var(--pollos-red);
+}
+
+body {
+  background: linear-gradient(135deg, #fdfbf7 0%, #e3dbca 100%);
+  background-attachment: fixed;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  position: relative;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  background-image: url('/img/logo.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  opacity: 0.04;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Utilidades */
+.bg-pollos-yellow { background-color: var(--pollos-yellow) !important; color: #8b0000 !important; }
+.bg-pollos-red { background-color: var(--pollos-red) !important; color: white !important; }
+.text-pollos-yellow { color: var(--pollos-yellow) !important; }
+.text-pollos-red { color: var(--pollos-red) !important; }
+
+.drop-shadow {
+  filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.2));
+}
+
+/* Botones hermosos */
+.btn-pollos-red {
+  background: linear-gradient(to bottom, #f23c57, var(--pollos-red));
+  color: white;
+  border: 1px solid #b3122b;
+  box-shadow: 0 4px 6px rgba(227, 24, 55, 0.3);
+  transition: all 0.2s ease-in-out;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-pollos-red:hover {
+  background: linear-gradient(to bottom, #d61f3a, #b3122b);
+  box-shadow: 0 6px 12px rgba(227, 24, 55, 0.5);
+  transform: translateY(-2px);
+  color: white;
+}
+
+.btn-pollos-red:disabled {
+  background: #f28b9a;
+  box-shadow: none;
+  transform: none;
+  border-color: #f28b9a;
+}
+
+/* Tarjetas */
+.pollos-card {
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.pollos-card-header {
+  background: var(--pollos-yellow);
+  color: #8b0000;
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 1.5rem;
+  border-bottom: 3px solid var(--pollos-red);
+}

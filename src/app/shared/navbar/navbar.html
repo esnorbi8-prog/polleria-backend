@@ -1,0 +1,67 @@
+<nav class="navbar navbar-expand-lg bg-pollos-yellow navbar-light shadow-sm sticky-top">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold d-flex align-items-center gap-2" [routerLink]="rutaInicio" style="color: #8b0000; cursor: pointer;">
+      <img src="/img/logo.png" alt="Logo Los Pollos Hermanos" height="40" style="object-fit: contain;">
+      Los Pollos Hermanos
+    </a>
+    
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <!-- Opciones para Cliente -->
+        <ng-container *ngIf="user?.rol === 'CLIENTE'">
+          <li class="nav-item">
+            <a class="nav-link fw-bold text-dark" routerLink="/cliente/home">Menú</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link fw-bold text-dark" routerLink="/cliente/pedidos">Mis Pedidos</a>
+          </li>
+        </ng-container>
+
+        <!-- Opciones para Cocinero -->
+        <ng-container *ngIf="user?.rol === 'COCINERO'">
+          <li class="nav-item">
+            <a class="nav-link fw-bold text-dark" routerLink="/cocina">Tablero Cocina</a>
+          </li>
+        </ng-container>
+
+        <!-- Opciones para Repartidor -->
+        <ng-container *ngIf="user?.rol === 'REPARTIDOR'">
+          <li class="nav-item">
+            <a class="nav-link fw-bold text-dark" routerLink="/reparto">Entregas</a>
+          </li>
+        </ng-container>
+        
+        <!-- Opciones para Cajera -->
+        <ng-container *ngIf="user?.rol === 'CAJERA'">
+          <li class="nav-item">
+            <a class="nav-link fw-bold text-dark" routerLink="/caja">Punto de Venta</a>
+          </li>
+        </ng-container>
+
+        <!-- Opciones para Administrador -->
+        <ng-container *ngIf="user?.rol === 'ADMINISTRADOR'">
+          <li class="nav-item">
+            <a class="nav-link fw-bold text-dark" routerLink="/admin">Administración</a>
+          </li>
+        </ng-container>
+      </ul>
+      
+      <!-- Contenedor derecho (Botones de usuario) -->
+      <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center mt-3 mt-lg-0 gap-2">
+        <ng-container *ngIf="!user">
+          <a routerLink="/login" class="btn btn-outline-dark w-100 w-lg-auto fw-bold">Ingresar</a>
+          <a routerLink="/registro" class="btn btn-dark w-100 w-lg-auto fw-bold">Registrarse</a>
+        </ng-container>
+        
+        <ng-container *ngIf="user">
+          <span class="fw-bold me-lg-3 text-dark mb-2 mb-lg-0">Hola, {{ user.email.split('@')[0] }}</span>
+          <button (click)="logout()" class="btn btn-pollos-red btn-sm px-4 fw-bold w-100 w-lg-auto">Salir</button>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</nav>

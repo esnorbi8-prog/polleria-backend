@@ -1,0 +1,51 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      
+      <div class="text-center mb-4">
+        <img src="/img/logo.png" alt="Logo Los Pollos Hermanos" height="90" class="mb-3 drop-shadow">
+        <h2 class="display-6 fw-bold" style="color: #8b0000; text-shadow: 1px 1px 0px #ffcc00;">
+          Los Pollos Hermanos
+        </h2>
+        <p class="text-muted fw-semibold">Sistema de Gestión Interna</p>
+      </div>
+
+      <div class="card pollos-card">
+        <div class="pollos-card-header text-center">
+          <h4 class="mb-0 fw-bold"><i class="bi bi-person-lock"></i> Identificación</h4>
+        </div>
+        <div class="card-body p-4 p-md-5 bg-white">
+          <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+            
+            <div *ngIf="errorMessage" class="alert alert-danger fw-semibold shadow-sm">
+              {{ errorMessage }}
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-bold text-dark">Correo Electrónico</label>
+              <div class="input-group input-group-lg">
+                <input type="email" class="form-control bg-light" name="email" 
+                       [(ngModel)]="credentials.email" required
+                       placeholder="ejemplo@polleria.com">
+              </div>
+            </div>
+
+            <div class="mb-5">
+              <label class="form-label fw-bold text-dark">Contraseña</label>
+              <div class="input-group input-group-lg">
+                <input type="password" class="form-control bg-light" name="password" 
+                       [(ngModel)]="credentials.password" required
+                       placeholder="••••••••">
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-pollos-red w-100 btn-lg rounded-pill" 
+                    [disabled]="!loginForm.valid || loading">
+              {{ loading ? 'Autenticando...' : 'Entrar al Sistema' }}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

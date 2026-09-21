@@ -1,0 +1,96 @@
+<div class="container-fluid py-4 px-4 bg-light min-vh-100">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold" style="color: #8b0000;"><i class="bi bi-fire text-pollos-red me-2"></i> Tablero de Cocina</h2>
+    <div class="d-flex align-items-center gap-3">
+      <span class="text-muted fw-bold">Actualización automática activada <i class="bi bi-arrow-repeat spin"></i></span>
+      <button class="btn btn-outline-dark" (click)="cargarTablero(true)"><i class="bi bi-arrow-clockwise"></i> Refrescar</button>
+    </div>
+  </div>
+
+  <div *ngIf="cargando()" class="text-center py-5">
+    <div class="spinner-border text-pollos-red" role="status"></div>
+  </div>
+
+  <div *ngIf="errorMsg()" class="alert alert-danger fw-bold">
+    {{ errorMsg() }}
+  </div>
+
+  <div class="row g-4" *ngIf="!cargando()">
+    <!-- COLUMNA 1: PENDIENTES (PAGADOS) -->
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0 bg-white" style="border-radius: 12px;">
+        <div class="card-header border-bottom py-3 d-flex justify-content-between align-items-center" style="background-color: #f8d7da;">
+          <h5 class="mb-0 fw-bold text-danger"><i class="bi bi-bell-fill"></i> Cola de Espera (Pagados)</h5>
+          <span class="badge bg-danger rounded-pill fs-6">{{ pedidosPendientes().length }}</span>
+        </div>
+        <div class="card-body p-3" style="min-height: 50vh; overflow-y: auto;">
+          
+          <div *ngIf="pedidosPendientes().length === 0" class="text-center text-muted py-5">
+            <i class="bi bi-emoji-smile display-4 opacity-50"></i>
+            <p class="mt-3 fw-bold">No hay pedidos nuevos por ahora</p>
+          </div>
+
+          <div class="card mb-3 border-danger border-opacity-50" *ngFor="let p of pedidosPendientes()" style="border-left: 5px solid #dc3545 !important;">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="fw-bold text-dark mb-0">Ticket #{{ p.id }}</h5>
+                <span class="badge bg-secondary">{{ p.tipoEntrega }}</span>
+              </div>
+              <small class="text-muted mb-3 d-block">{{ p.fechaCreacion | date:'shortTime' }}</small>
+              
+              <ul class="list-unstyled mb-3">
+                <li class="fw-bold mb-1 fs-5" *ngFor="let item of p.items">
+                  <span class="text-danger me-2">{{ item.cantidad }}x</span> {{ item.producto.nombre }}
+                </li>
+              </ul>
+              
+              <button class="btn btn-danger w-100 fw-bold py-2" (click)="marcarEnPreparacion(p.id)">
+                <i class="bi bi-fire"></i> Empezar a Preparar
+              </button>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+
+    <!-- COLUMNA 2: EN PREPARACIÓN -->
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0 bg-white" style="border-radius: 12px;">
+        <div class="card-header border-bottom py-3 d-flex justify-content-between align-items-center" style="background-color: #fff3cd;">
+          <h5 class="mb-0 fw-bold text-warning" style="color: #856404 !important;"><i class="bi bi-tools"></i> En Preparación (Fuego)</h5>
+          <span class="badge bg-warning text-dark rounded-pill fs-6">{{ pedidosPreparacion().length }}</span>
+        </div>
+        <div class="card-body p-3" style="min-height: 50vh; overflow-y: auto;">
+
+          <div *ngIf="pedidosPreparacion().length === 0" class="text-center text-muted py-5">
+            <i class="bi bi-wind display-4 opacity-50"></i>
+            <p class="mt-3 fw-bold">La cocina está despejada</p>
+          </div>
+
+          <div class="card mb-3 border-warning border-opacity-50 shadow-sm" *ngFor="let p of pedidosPreparacion()" style="border-left: 5px solid #ffc107 !important;">
+            <div class="card-body bg-light">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="fw-bold text-dark mb-0">Ticket #{{ p.id }}</h5>
+                <span class="badge bg-secondary">{{ p.tipoEntrega }}</span>
+              </div>
+              <small class="text-muted mb-3 d-block">{{ p.fechaCreacion | date:'shortTime' }}</small>
+              
+              <ul class="list-unstyled mb-3">
+                <li class="fw-bold mb-1 fs-5" *ngFor="let item of p.items">
+                  <span class="text-warning text-darken me-2">{{ item.cantidad }}x</span> {{ item.producto.nombre }}
+                </li>
+              </ul>
+              
+              <button class="btn btn-warning w-100 fw-bold py-2 shadow-sm" (click)="marcarListo(p.id)">
+                <i class="bi bi-check2-circle fs-5"></i> Marcar como ¡LISTO!
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

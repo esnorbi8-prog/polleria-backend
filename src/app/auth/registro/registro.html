@@ -1,0 +1,82 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      
+      <div class="text-center mb-4">
+        <img src="/img/logo.png" alt="Logo Los Pollos Hermanos" height="70" class="mb-2 drop-shadow">
+        <h2 class="display-6 fw-bold text-pollos-red mb-1">Crea tu Cuenta</h2>
+        <p class="text-muted fw-semibold">Regístrate para hacer tus pedidos más rápido</p>
+      </div>
+
+      <div class="card pollos-card">
+        <div class="pollos-card-header text-center">
+          <h5 class="mb-0 fw-bold"><i class="bi bi-person-plus-fill"></i> Datos del Cliente</h5>
+        </div>
+        <div class="card-body p-4 p-md-5 bg-white">
+          
+          <div *ngIf="exito" class="text-center py-3">
+            <i class="bi bi-envelope-check-fill display-3 text-success mb-3"></i>
+            <h4 class="fw-bold">¡Registro Exitoso!</h4>
+            <p class="text-muted">
+              Por motivos de seguridad, debes verificar tu correo. 
+              <strong>Para esta prueba:</strong> Revisa la consola negra de Spring Boot (backend), copia el token generado y valídalo manualmente.
+            </p>
+            <p class="small bg-light p-2 rounded">
+              <em>Sugerencia: Para probar rápido el catálogo, mejor ingresa con la cuenta de prueba preexistente: <b>cliente&#64;polleria.com / Cliente123!</b></em>
+            </p>
+            <a routerLink="/login" class="btn btn-pollos-red fw-bold w-100 mt-3">Ir a Ingresar</a>
+          </div>
+
+          <form *ngIf="!exito" (ngSubmit)="onSubmit()" #registroForm="ngForm">
+            
+            <div *ngIf="errorMensaje" class="alert alert-danger fw-semibold shadow-sm">
+              {{ errorMensaje }}
+            </div>
+
+            <div class="row">
+              <div class="col-md-12 mb-3">
+                <label class="form-label fw-bold small">Nombre Completo *</label>
+                <input type="text" class="form-control bg-light" name="nombreCompleto" 
+                       [(ngModel)]="registroData.nombreCompleto" required>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold small">Correo Electrónico *</label>
+                <input type="email" class="form-control bg-light" name="email" 
+                       [(ngModel)]="registroData.email" required>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold small">Contraseña *</label>
+                <input type="password" class="form-control bg-light" name="password" 
+                       [(ngModel)]="registroData.password" required minlength="6">
+              </div>
+
+              <div class="col-md-12 mb-3">
+                <label class="form-label fw-bold small">Teléfono *</label>
+                <input type="text" class="form-control bg-light" name="telefono" 
+                       [(ngModel)]="registroData.telefono" required>
+              </div>
+
+              <div class="col-md-12 mb-4">
+                <label class="form-label fw-bold small">Dirección Principal</label>
+                <input type="text" class="form-control bg-light" name="direccion" 
+                       [(ngModel)]="registroData.direccion">
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-pollos-red w-100 btn-lg rounded-pill" 
+                    [disabled]="!registroForm.valid || loading">
+              {{ loading ? 'Registrando...' : 'Crear mi cuenta' }}
+            </button>
+
+            <div class="text-center mt-3">
+              <small class="text-muted">¿Ya tienes cuenta? <a routerLink="/login" class="text-pollos-red fw-bold text-decoration-none">Ingresa aquí</a></small>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

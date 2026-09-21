@@ -1,0 +1,137 @@
+<div class="container mt-4">
+  <div class="row">
+    <!-- Catálogo de Productos -->
+    <div class="col-lg-8">
+      <h2 class="fw-bold mb-4" style="color: #8b0000;">
+        <i class="bi bi-shop"></i> Nuestro Menú
+      </h2>
+
+      <div *ngIf="productos().length === 0" class="text-center py-5">
+        <div class="spinner-border text-pollos-red" role="status"></div>
+        <p class="mt-2 text-muted fw-bold">Cargando delicias...</p>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-4" *ngFor="let prod of productos()">
+          <div class="card pollos-card h-100" [class.opacity-50]="prod.agotado || prod.stock <= 0">
+            <div class="card-body d-flex flex-column">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="card-title fw-bold text-dark mb-0">{{ prod.nombre }}</h5>
+                <span class="badge bg-pollos-yellow fs-6">S/ {{ prod.precio }}</span>
+              </div>
+              
+              <p class="card-text text-muted small flex-grow-1">{{ prod.descripcion }}</p>
+              
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <small class="fw-bold" [class.text-danger]="prod.stock < 5" [class.text-success]="prod.stock >= 5">
+                  Stock: {{ prod.stock }}
+                </small>
+                
+                <button class="btn btn-pollos-red btn-sm fw-bold px-3" 
+                        (click)="agregarAlCarrito(prod)"
+                        [disabled]="prod.agotado || prod.stock <= 0">
+                  <i class="bi bi-cart-plus"></i> Agregar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carrito y Checkout -->
+    <div class="col-lg-4">
+      <div class="card pollos-card sticky-lg-top" style="top: 100px;">
+        <div class="pollos-card-header d-flex justify-content-between align-items-center py-3">
+          <h5 class="mb-0 fw-bold"><i class="bi bi-cart4"></i> Tu Pedido</h5>
+          <span class="badge bg-white text-dark rounded-pill">{{ carrito().length }}</span>
+        </div>
+        
+        <div class="card-body">
+          <!-- Si el pedido fue exitoso -->
+          <div *ngIf="pedidoExitoso" class="text-center py-4">
+            <i class="bi bi-check-circle-fill display-1 text-success mb-3 d-block drop-shadow"></i>
+            <h4 class="fw-bold text-dark">¡Pedido Confirmado!</h4>
+            <p class="text-muted small">Tu orden está siendo preparada. Revisa la pestaña "Mis Pedidos" para ver el estado en tiempo real.</p>
+            <button class="btn btn-outline-dark mt-2 w-100 fw-bold" (click)="pedidoExitoso = false">
+              Hacer otro pedido
+            </button>
+          </div>
+
+          <!-- Carrito Activo -->
+          <ng-container *ngIf="!pedidoExitoso">
+            
+            <div *ngIf="errorMensaje" class="alert alert-danger py-2 small fw-bold">
+              {{ errorMensaje }}
+            </div>
+
+            <div *ngIf="carrito().length === 0" class="text-center py-4 text-muted">
+              <i class="bi bi-basket2 display-4 mb-2 d-block opacity-25"></i>
+              <p class="fw-bold small mb-0">Tu carrito está vacío</p>
+            </div>
+
+            <ul class="list-group list-group-flush mb-3" *ngIf="carrito().length > 0">
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0" 
+                  *ngFor="let item of carrito()">
+                <div>
+                  <h6 class="my-0 fw-bold text-dark">{{ item.producto.nombre }}</h6>
+                  <small class="text-muted">{{ item.cantidad }} x S/ {{ item.producto.precio }}</small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="fw-bold text-success">S/ {{ item.cantidad * item.producto.precio }}</span>
+                  <button class="btn btn-sm btn-outline-danger border-0" (click)="quitarDelCarrito(item.producto.id)">
+                    <i class="bi bi-x-circle-fill"></i>
+                  </button>
+                </div>
+              </li>
+              <li class="list-group-item d-flex justify-content-between px-0 bg-light rounded mt-2 p-2">
+                <span class="fw-bold text-dark">Total a Pagar</span>
+                <strong class="text-pollos-red fs-5">S/ {{ totalCarrito }}</strong>
+              </li>
+            </ul>
+
+            <!-- Formulario de Checkout -->
+            <div *ngIf="carrito().length > 0">
+              <h6 class="fw-bold text-dark mb-3">Detalles de Entrega</h6>
+              
+              <div class="mb-3">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="tipoEntrega" id="delivery" 
+                         value="DELIVERY" [(ngModel)]="tipoEntrega" (change)="onTipoEntregaChange()">
+                  <label class="form-check-label fw-bold small" for="delivery">Delivery</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="tipoEntrega" id="retiro" 
+                         value="RETIRO_LOCAL" [(ngModel)]="tipoEntrega">
+                  <label class="form-check-label fw-bold small" for="retiro">Retiro Local</label>
+                </div>
+              </div>
+
+              <div class="mb-4" [class.d-none]="tipoEntrega !== 'DELIVERY'">
+                <label class="form-label fw-bold small">Dirección de Entrega</label>
+                <div class="input-group input-group-sm mb-2">
+                  <span class="input-group-text bg-pollos-yellow text-dark"><i class="bi bi-geo-alt-fill"></i></span>
+                  <input type="text" class="form-control" [(ngModel)]="direccionEntrega" 
+                         placeholder="Ej. Av. Siempre Viva 742" readonly>
+                </div>
+                <small class="text-muted d-block mb-2">📍 Haz clic en el mapa para ubicar tu casa:</small>
+                <div id="checkoutMap" class="rounded border" style="height: 200px; width: 100%; z-index: 1;"></div>
+              </div>
+
+              <button class="btn btn-pollos-red w-100 fw-bold" 
+                      (click)="realizarPedido()" 
+                      [disabled]="procesando">
+                {{ procesando ? 'Procesando...' : 'Confirmar Pedido' }}
+              </button>
+              
+              <p *ngIf="!miPerfil()" class="text-danger small fw-bold mt-2 text-center">
+                <i class="bi bi-exclamation-triangle"></i> Necesitas reiniciar el backend para que detecte tu perfil y puedas pedir.
+              </p>
+            </div>
+          </ng-container>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
