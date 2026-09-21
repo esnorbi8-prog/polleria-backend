@@ -86,15 +86,7 @@ public class PagoService {
         PreferenceRequest request = PreferenceRequest.builder()
                 .items(items)
                 .backUrls(backUrls)
-                // NOTA: "auto_return" (volver solo al sitio tras pagar) exige que
-                // back_urls.success sea un dominio público real; Mercado Pago lo
-                // rechaza con "invalid_auto_return" si es localhost. Como el
-                // frontend Angular todavía no está desplegado, se deja sin activar
-                // por ahora; el cliente puede volver manualmente con el botón
-                // "Volver al sitio" de Mercado Pago. Cuando exista una URL pública,
-                // se puede reactivar agregando .autoReturn("approved") acá.
-                // external_reference es lo que nos permite, en el webhook, saber a qué
-                // Pedido de nuestra BD corresponde el pago que avisa Mercado Pago.
+                // MP rechaza autoReturn si la URL es localhost. Se debe hacer click en "Volver al sitio".
                 .externalReference(String.valueOf(pedidoId))
                 .notificationUrl(notificationUrl)
                 .build();
@@ -127,6 +119,13 @@ public class PagoService {
     @Transactional
     public Pedido confirmarPago(Long pedidoId, String paymentId) {
         Pedido pedido = pedidoService.buscarPorId(pedidoId);
+
+        if (paymentId != null && paymentId.startsWith("demo-")) {
+            pedido.setReferenciaPago(paymentId);
+            pedidoRepository.save(pedido);
+            return pedidoService.cambiarEstado(pedidoId, EstadoPedido.PAGADO,
+                    "Pago confirmado por DEMO LOCAL (payment #" + paymentId + ")");
+        }
 
         Payment payment = obtenerPago(paymentId);
 

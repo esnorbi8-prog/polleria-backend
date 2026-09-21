@@ -23,6 +23,14 @@ public class ClienteController {
         return clienteRepository.findAll();
     }
 
+    @GetMapping("/me")
+    public Cliente obtenerMiPerfil(@org.springframework.security.core.annotation.AuthenticationPrincipal com.polleria.pedidos.usuario.Usuario usuario) {
+        return clienteRepository.findAll().stream()
+                .filter(c -> usuario.getId().equals(c.getUsuarioId()))
+                .findFirst()
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró el perfil de cliente asociado a esta cuenta."));
+    }
+
     @GetMapping("/{id}")
     public Cliente obtener(@PathVariable Long id) {
         return clienteRepository.findById(id)
