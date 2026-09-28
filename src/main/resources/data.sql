@@ -33,8 +33,11 @@ WHERE NOT EXISTS (SELECT 1 FROM productos WHERE nombre = 'Lagarto al sillao');
 UPDATE productos SET descripcion = 'Lagarto sideral bien bañado al sillao. Especialidad de la casa.' WHERE nombre = 'Lagarto al sillao';
 
 INSERT INTO clientes (nombre, telefono, email, direccion)
-SELECT * FROM (SELECT 'Juan Pérez', '999888777', 'juan.perez@example.com', 'Av. Los Álamos 123, Lima') AS tmp
-WHERE NOT EXISTS (SELECT 1 FROM clientes WHERE telefono = '999888777');
+SELECT * FROM (SELECT 'Cliente de Mostrador (Genérico)', '000000000', 'mostrador@local.com', 'Local') AS tmp
+WHERE NOT EXISTS (SELECT 1 FROM clientes WHERE telefono = '000000000');
+
+-- Renombrar forzosamente si la base de datos ya tenía a "Juan Pérez" guardado
+UPDATE clientes SET nombre = 'Cliente de Mostrador (Genérico)', telefono = '000000000', email = 'mostrador@local.com', direccion = 'Local' WHERE telefono = '999888777';
 
 -- =========================================================
 -- Cuentas de prueba (avance 3: usuarios y roles).

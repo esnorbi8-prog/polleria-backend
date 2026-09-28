@@ -43,6 +43,17 @@ public class ProductoController {
         producto.setDescripcion(datos.getDescripcion());
         producto.setPrecio(datos.getPrecio());
         producto.setStock(datos.getStock());
+        if (datos.getImagen() != null) {
+            producto.setImagen(datos.getImagen());
+        }
         return productoRepository.save(producto);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void eliminar(@PathVariable Long id) {
+        Producto producto = productoRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Producto no encontrado: " + id));
+        productoRepository.delete(producto);
     }
 }
