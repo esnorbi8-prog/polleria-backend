@@ -36,14 +36,19 @@ public class Producto {
     @Column(nullable = false)
     private Integer stock;
 
+    @Lob
+    @Column(name = "imagen", columnDefinition = "TEXT")
+    private String imagen;
+
     public Producto() {
     }
 
-    public Producto(String nombre, String descripcion, BigDecimal precio, Integer stock) {
+    public Producto(String nombre, String descripcion, BigDecimal precio, Integer stock, String imagen) {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.precio = precio;
         this.stock = stock;
+        this.imagen = imagen;
     }
 
     public boolean isAgotado() {
@@ -88,5 +93,13 @@ public class Producto {
 
     public void setStock(Integer stock) {
         this.stock = stock;
+    }
+
+    public String getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
     }
 }
