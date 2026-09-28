@@ -143,11 +143,11 @@ export class Home implements OnInit {
     const mapElement = document.getElementById('checkoutMap');
     if (!mapElement) return;
 
-    // Coordenadas base (Ej: Centro de Lima)
-    const lat = -12.0464;
-    const lng = -77.0428;
+    // Coordenadas base (Ica, Perú)
+    const lat = -14.0677;
+    const lng = -75.7286;
 
-    this.map = L.map('checkoutMap').setView([lat, lng], 13);
+    this.map = L.map('checkoutMap').setView([lat, lng], 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
@@ -177,6 +177,30 @@ export class Home implements OnInit {
     });
 
     setTimeout(() => this.map.invalidateSize(), 500);
+  }
+
+  buscarEnMapa() {
+    if (!this.direccionEntrega || this.direccionEntrega.trim() === '') return;
+    
+    // Buscar la dirección en texto (añadimos Ica, Peru para dar prioridad a la zona local)
+    const query = encodeURIComponent(this.direccionEntrega + ', Ica, Peru');
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`;
+    
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          const lat = parseFloat(data[0].lat);
+          const lon = parseFloat(data[0].lon);
+          
+          this.map.setView([lat, lon], 16);
+          this.marker.setLatLng([lat, lon]);
+          // Ya no sobreescribimos el texto que escribió el usuario para evitar nombres raros de OpenStreetMap
+        } else {
+          alert('No pudimos encontrar esa dirección exacta. Por favor, intenta arrastrar el marcador rojo en el mapa manualmente.');
+        }
+      })
+      .catch(err => console.error('Error buscando dirección:', err));
   }
 
   onTipoEntregaChange() {

@@ -1,1 +1,208 @@
-<p>pos works!</p>
+<div class="container-fluid mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold" style="color: #8b0000;">Punto de Venta (Caja)</h2>
+    <div class="btn-group">
+      <button class="btn fw-bold" 
+              [ngClass]="activeTab() === 'NUEVO' ? 'btn-pollos-red' : 'btn-outline-danger'" 
+              (click)="cambiarTab('NUEVO')">
+        <i class="bi bi-cart-plus"></i> Tomar Pedido
+      </button>
+      <button class="btn fw-bold" 
+              [ngClass]="activeTab() === 'ENTREGAS' ? 'btn-pollos-red' : 'btn-outline-danger'" 
+              (click)="cambiarTab('ENTREGAS')">
+        <i class="bi bi-box-seam"></i> Entregar Pedidos
+      </button>
+    </div>
+  </div>
+
+  <!-- TAB 1: TOMAR NUEVO PEDIDO -->
+  <div class="row" *ngIf="activeTab() === 'NUEVO'">
+    <!-- Menú de Productos (Lado Izquierdo) -->
+    <div class="col-lg-8 mb-4">
+      <div class="row g-3">
+        <div class="col-md-4 col-sm-6" *ngFor="let p of productos()">
+          <div class="card pollos-card h-100 shadow-sm" style="cursor: pointer;" (click)="agregarAlCarrito(p)">
+            <img *ngIf="p.imagen" [src]="p.imagen" class="card-img-top" alt="{{ p.nombre }}" style="height: 120px; object-fit: cover;">
+            <div class="card-body text-center p-2 d-flex flex-column justify-content-between">
+              <h6 class="fw-bold mb-1" style="font-size: 0.9rem;">{{ p.nombre }}</h6>
+              <span class="badge bg-success w-100 mt-2">S/ {{ p.precio }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ticket Actual (Lado Derecho) -->
+    <div class="col-lg-4">
+      <div class="card pollos-card sticky-top shadow-lg" style="top: 80px;">
+        <div class="pollos-card-header bg-dark text-white py-2">
+          <i class="bi bi-receipt"></i> Ticket de Venta
+        </div>
+        <div class="card-body p-0">
+          
+          <div *ngIf="carrito().length === 0" class="text-center py-5 text-muted">
+            <i class="bi bi-basket2 display-4 opacity-25"></i>
+            <p class="mt-2">Ningún producto seleccionado</p>
+          </div>
+
+          <ul class="list-group list-group-flush" *ngIf="carrito().length > 0">
+            <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let item of carrito()">
+              <div>
+                <span class="badge bg-secondary me-2">{{ item.cantidad }}</span>
+                <span class="fw-bold small">{{ item.producto.nombre }}</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="text-success fw-bold small">S/ {{ item.cantidad * item.producto.precio }}</span>
+                <button class="btn btn-sm text-danger p-0" (click)="quitarDelCarrito(item.producto.id)">
+                  <i class="bi bi-x-circle-fill fs-5"></i>
+                </button>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="card-footer bg-light" *ngIf="carrito().length > 0">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="fw-bold text-uppercase text-muted">Total a Pagar</span>
+            <span class="fs-4 fw-bold text-pollos-red">S/ {{ totalCarrito }}</span>
+          </div>
+          <button class="btn btn-success w-100 fw-bold py-2 mb-2" (click)="abrirModalCobro()">
+            <i class="bi bi-cash"></i> Cobrar Pedido
+          </button>
+          <button class="btn btn-outline-secondary w-100 fw-bold py-2" (click)="carrito.set([])">
+            Cancelar Venta
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: ENTREGAS PARA LLEVAR/RETIRO EN LOCAL -->
+  <div *ngIf="activeTab() === 'ENTREGAS'">
+    <div class="row">
+      <div class="col-12">
+        <div class="card pollos-card shadow-sm">
+          <div class="pollos-card-header bg-warning text-dark py-2">
+            <i class="bi bi-bag-check-fill"></i> Pedidos listos o pendientes para entrega en Mostrador
+          </div>
+          <div class="card-body p-0">
+            
+            <div *ngIf="pedidosLocal().length === 0" class="text-center py-5 text-muted">
+              <i class="bi bi-emoji-smile display-4 opacity-25"></i>
+              <p class="mt-2 fw-bold">No hay pedidos pendientes de entrega en el local.</p>
+            </div>
+
+            <table class="table table-hover align-middle mb-0" *ngIf="pedidosLocal().length > 0">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col" class="ps-4">Ticket</th>
+                  <th scope="col">Cliente / Usuario ID</th>
+                  <th scope="col">Total</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col" class="text-end pe-4">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let p of pedidosLocal()">
+                  <td class="ps-4 fw-bold">#{{ p.id }}</td>
+                  <td>
+                    <span class="fw-bold text-dark"><i class="bi bi-person-fill"></i> Cliente en Mostrador</span>
+                    <span *ngIf="p.direccionEntrega" class="small text-muted d-block">{{ p.direccionEntrega }}</span>
+                  </td>
+                  <td class="fw-bold text-success">S/ {{ p.total }}</td>
+                  <td>
+                    <span class="badge" 
+                          [ngClass]="{
+                            'bg-secondary': p.estado === 'RECIBIDO',
+                            'bg-primary': p.estado === 'PREPARANDO',
+                            'bg-success': p.estado === 'LISTO'
+                          }">
+                      {{ p.estado }}
+                    </span>
+                  </td>
+                  <td class="text-end pe-4">
+                    <!-- Solo se puede entregar si ya salió de cocina (LISTO) -->
+                    <button class="btn btn-sm btn-success fw-bold" 
+                            *ngIf="p.estado === 'LISTO'" 
+                            (click)="entregarPedido(p.id)">
+                      <i class="bi bi-check2-all"></i> Entregar a Cliente
+                    </button>
+                    <span *ngIf="p.estado !== 'LISTO'" class="text-muted small fst-italic">En Cocina...</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE COBRO (OVERLAY CUSTOM) -->
+<div class="modal-backdrop-custom" *ngIf="mostrarModalCobro" 
+     style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+  
+  <div class="card shadow-lg border-0" style="width: 450px; border-radius: 15px; animation: scaleUp 0.3s ease-out;">
+    
+    <!-- PASO 1: SELECCIONAR MÉTODO DE PAGO -->
+    <ng-container *ngIf="!pedidoExitoso">
+      <div class="card-header bg-dark text-white text-center py-3 border-0" style="border-radius: 15px 15px 0 0;">
+        <h5 class="mb-0 fw-bold"><i class="bi bi-wallet2"></i> Procesar Pago</h5>
+      </div>
+      <div class="card-body p-4">
+        <h2 class="text-center text-success fw-bold mb-4">S/ {{ totalCarrito }}</h2>
+        
+        <p class="fw-bold text-muted mb-2">Seleccione método de pago:</p>
+        <div class="d-flex flex-column gap-2 mb-4">
+          <input type="radio" class="btn-check" name="pago" id="efectivo" value="EFECTIVO" [(ngModel)]="metodoPago">
+          <label class="btn btn-outline-dark text-start p-3 fw-bold" for="efectivo">
+            <i class="bi bi-cash-stack text-success fs-5 me-2"></i> Efectivo
+          </label>
+
+          <input type="radio" class="btn-check" name="pago" id="yape" value="YAPE/PLIN" [(ngModel)]="metodoPago">
+          <label class="btn btn-outline-dark text-start p-3 fw-bold" for="yape">
+            <i class="bi bi-phone-vibrate text-primary fs-5 me-2"></i> Yape / Plin / Billeteras
+          </label>
+
+          <input type="radio" class="btn-check" name="pago" id="tarjeta" value="TARJETA (POS)" [(ngModel)]="metodoPago">
+          <label class="btn btn-outline-dark text-start p-3 fw-bold" for="tarjeta">
+            <i class="bi bi-credit-card text-warning fs-5 me-2"></i> Tarjeta Débito/Crédito (POS)
+          </label>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button class="btn btn-secondary w-50 fw-bold" (click)="cerrarModal()">Cancelar</button>
+          <button class="btn btn-success w-50 fw-bold" (click)="confirmarPago()">
+            <i class="bi bi-check-circle"></i> Confirmar
+          </button>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- PASO 2: ÉXITO -->
+    <ng-container *ngIf="pedidoExitoso">
+      <div class="card-body p-5 text-center">
+        <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+        <h4 class="fw-bold mt-3 text-dark">¡Pago Registrado!</h4>
+        <p class="text-muted mb-4">El pedido ha sido enviado a la cocina.</p>
+        
+        <div class="alert alert-success fw-bold fs-5 mb-4">
+          TICKET #{{ ultimoPedidoId }}
+        </div>
+
+        <button class="btn btn-pollos-red w-100 fw-bold py-2" (click)="cerrarModal()">
+          Cerrar y Tomar Siguiente Pedido
+        </button>
+      </div>
+    </ng-container>
+    
+  </div>
+</div>
+
+<style>
+  @keyframes scaleUp {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+</style>

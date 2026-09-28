@@ -10,7 +10,7 @@ export interface ItemPedidoRequest {
 
 export interface PedidoRequest {
   clienteId: number;
-  tipoEntrega: 'DELIVERY' | 'RETIRO_LOCAL' | 'MESA';
+  tipoEntrega: string;
   direccionEntrega?: string;
   items: ItemPedidoRequest[];
 }

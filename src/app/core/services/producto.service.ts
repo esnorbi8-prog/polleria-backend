@@ -12,6 +12,7 @@ export interface Producto {
   agotado: boolean;
   activo: boolean;
   categoria: string;
+  imagen?: string;
 }
 
 @Injectable({
@@ -23,5 +24,17 @@ export class ProductoService {
 
   getProductos(): Observable<Producto[]> {
     return this.http.get<Producto[]>(this.apiUrl);
+  }
+
+  crearProducto(producto: Partial<Producto>): Observable<Producto> {
+    return this.http.post<Producto>(this.apiUrl, producto);
+  }
+
+  actualizarProducto(id: number, producto: Partial<Producto>): Observable<Producto> {
+    return this.http.put<Producto>(`${this.apiUrl}/${id}`, producto);
+  }
+
+  eliminarProducto(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

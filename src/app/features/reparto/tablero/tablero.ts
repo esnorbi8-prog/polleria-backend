@@ -91,7 +91,7 @@ export class RepartoTablero implements OnInit, OnDestroy {
 
   getMapaUrl(direccion: string): SafeResourceUrl {
     if (!direccion) {
-      direccion = 'Lima, Peru';
+      direccion = 'Ica, Peru';
     }
     const url = `https://maps.google.com/maps?q=${encodeURIComponent(direccion)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
