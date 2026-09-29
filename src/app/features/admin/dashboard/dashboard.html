@@ -1,11 +1,20 @@
 <div class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="fw-bold" style="color: #8b0000;">Tablero de Administración</h2>
-    <button class="btn btn-pollos-red"><i class="bi bi-plus-circle"></i> Nuevo Empleado</button>
+    <button class="btn btn-pollos-red" (click)="nuevoEmpleado()"><i class="bi bi-plus-circle"></i> Nuevo Empleado</button>
   </div>
 
-  <!-- Tablero Estadístico -->
-  <div class="row" *ngIf="!mostrarFormulario">
+  <!-- Skeleton/Spinner de Carga -->
+  <div *ngIf="cargandoDatos" class="text-center py-5 my-5">
+    <div class="spinner-border text-pollos-red mb-3" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <h5 class="fw-bold text-muted">Cargando información...</h5>
+  </div>
+
+  <div *ngIf="!cargandoDatos">
+  <!-- Tablero -->
+  <div class="row" *ngIf="!mostrarFormulario && !mostrarFormularioEmpleado">
     <div class="col-md-4 mb-4">
       <div class="card pollos-card h-100 shadow-sm border-0" style="border-bottom: 5px solid var(--pollos-yellow);">
         <div class="card-body text-center p-4">
@@ -66,7 +75,7 @@
   </div>
 
   <!-- Gestión de Menú -->
-  <div class="card pollos-card mt-2" *ngIf="!mostrarFormulario">
+  <div class="card pollos-card mt-2" *ngIf="!mostrarFormulario && !mostrarFormularioEmpleado">
     <div class="pollos-card-header d-flex justify-content-between align-items-center">
       <span class="fw-bold"><i class="bi bi-box-seam"></i> Gestión del Menú</span>
       <button class="btn btn-sm btn-light text-danger fw-bold" (click)="nuevoProducto()">
@@ -105,6 +114,51 @@
                   <i class="bi bi-pencil-fill"></i>
                 </button>
                 <button class="btn btn-sm btn-outline-danger" (click)="eliminarProducto(p.id)">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gestión de Empleados (Personal) -->
+  <div class="card pollos-card mt-4 shadow-sm" *ngIf="!mostrarFormulario && !mostrarFormularioEmpleado">
+    <div class="pollos-card-header d-flex justify-content-between align-items-center bg-dark text-white">
+      <span class="fw-bold"><i class="bi bi-people-fill"></i> Gestión de Personal</span>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" class="ps-4">Nombre Completo</th>
+              <th scope="col">Email</th>
+              <th scope="col">Rol</th>
+              <th scope="col">Estado</th>
+              <th scope="col" class="text-end pe-4">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let emp of empleados()">
+              <td class="ps-4 fw-bold">{{ emp.nombreCompleto }}</td>
+              <td>{{ emp.email }}</td>
+              <td><span class="badge bg-secondary">{{ emp.rol }}</span></td>
+              <td>
+                <span class="badge" [ngClass]="emp.activo ? 'bg-success' : 'bg-danger'">
+                  {{ emp.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="text-end pe-4">
+                <button class="btn btn-sm btn-outline-primary me-1" title="Editar" (click)="editarEmpleado(emp)">
+                  <i class="bi bi-pencil-fill"></i>
+                </button>
+                <button class="btn btn-sm me-1" [ngClass]="emp.activo ? 'btn-outline-warning' : 'btn-outline-success'" (click)="cambiarEstadoEmpleado(emp.id, emp.activo)" [title]="emp.activo ? 'Bloquear Acceso' : 'Permitir Acceso'">
+                  <i class="bi" [ngClass]="emp.activo ? 'bi-lock-fill' : 'bi-unlock-fill'"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" title="Eliminar Definitivamente" (click)="eliminarEmpleado(emp.id)">
                   <i class="bi bi-trash-fill"></i>
                 </button>
               </td>
@@ -163,5 +217,98 @@
         </div>
       </div>
     </div>
+  </div>
+  <!-- Formulario de Nuevo/Editar Empleado -->
+  <div class="card pollos-card mt-2 shadow-lg" *ngIf="mostrarFormularioEmpleado">
+    <div class="pollos-card-header bg-pollos-red text-white">
+      <i class="bi bi-person-plus-fill"></i> {{ empleadoEnEdicion ? 'Editar Empleado' : 'Nuevo Empleado' }}
+    </div>
+    <div class="card-body">
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <div class="mb-3">
+            <label class="form-label fw-bold small">Nombre Completo</label>
+            <input type="text" class="form-control" [(ngModel)]="empleadoNuevo.nombreCompleto" placeholder="Ej: Gustavo Fring">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold small">Correo Electrónico (Email)</label>
+            <input type="email" class="form-control" [(ngModel)]="empleadoNuevo.email" placeholder="ejemplo@polleria.com">
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold small">Contraseña {{ empleadoEnEdicion ? '(Opcional)' : '' }}</label>
+              <input type="password" class="form-control" [(ngModel)]="empleadoNuevo.password" placeholder="Mínimo 8 caracteres">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold small">Rol</label>
+              <select class="form-select" [(ngModel)]="empleadoNuevo.rol">
+                <option value="COCINERO">Cocinero</option>
+                <option value="REPARTIDOR">Repartidor</option>
+                <option value="CAJERA">Cajera</option>
+                <option value="ADMINISTRADOR">Administrador</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <button class="btn btn-light border fw-bold" (click)="cancelarEmpleado()">Cancelar</button>
+            <button class="btn btn-pollos-red fw-bold px-4" (click)="guardarEmpleado()">
+              <i class="bi bi-person-check-fill"></i> {{ empleadoEnEdicion ? 'Actualizar' : 'Crear Empleado' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Notificación Personalizado -->
+  <div class="custom-modal-overlay" *ngIf="modalNotificacion.mostrar">
+    <div class="custom-modal-content text-center">
+      <div class="icon-circle mx-auto" [ngClass]="modalNotificacion.tipo === 'success' ? 'success' : 'danger'">
+        <i class="bi" [ngClass]="modalNotificacion.tipo === 'success' ? 'bi-check-lg' : 'bi-x-lg'" style="font-size: 3rem;"></i>
+      </div>
+      <h3 class="mt-2 fw-bold text-dark">{{ modalNotificacion.titulo }}</h3>
+      <p class="fs-5 text-muted mt-3 px-3">{{ modalNotificacion.mensaje }}</p>
+      <button class="btn btn-pollos-red mt-4 px-5 py-2 fw-bold rounded-pill shadow-sm w-100" (click)="cerrarModal()">Entendido</button>
+    </div>
+  </div>
+
+  <!-- Modal de Confirmación Themed -->
+  <div class="custom-modal-overlay" *ngIf="modalConfirmacion.mostrar">
+    <div class="custom-modal-content text-center">
+      
+      <!-- Imagen personalizada o Ícono temático circular -->
+      <div class="mb-3" *ngIf="modalConfirmacion.imagenUrl">
+        <img [src]="modalConfirmacion.imagenUrl" alt="Imagen de confirmación" class="img-fluid rounded shadow-sm" style="max-height: 200px; object-fit: contain;">
+      </div>
+      
+      <div class="icon-circle mx-auto" [ngClass]="modalConfirmacion.tipo === 'danger' ? 'danger' : 'warning'" *ngIf="!modalConfirmacion.imagenUrl">
+        <i class="bi" 
+           [ngClass]="modalConfirmacion.tipo === 'danger' ? 'bi-exclamation-triangle-fill' : 'bi-shield-exclamation'" 
+           style="font-size: 3rem;">
+        </i>
+      </div>
+
+      <h3 class="fw-bold text-dark mt-2">
+        {{ modalConfirmacion.titulo }}
+      </h3>
+      
+      <p class="fs-5 text-muted mt-3 px-3">
+        {{ modalConfirmacion.mensaje }}
+      </p>
+
+      <div class="d-flex flex-column gap-2 mt-4">
+        <button class="btn fw-bold px-4 py-2 rounded-pill shadow-sm w-100" 
+                [ngClass]="modalConfirmacion.tipo === 'danger' ? 'btn-danger' : 'btn-warning'" 
+                (click)="modalConfirmacion.accionConfirmar()">
+          {{ modalConfirmacion.textoBoton || 'Confirmar' }}
+        </button>
+        <button class="btn btn-light fw-bold px-4 py-2 rounded-pill w-100" style="color: #6c757d;" (click)="cerrarModalConfirmacion()">
+          Cancelar
+        </button>
+      </div>
+
+    </div>
+  </div>
   </div>
 </div>

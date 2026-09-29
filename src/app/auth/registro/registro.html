@@ -17,14 +17,17 @@
           <div *ngIf="exito" class="text-center py-3">
             <i class="bi bi-envelope-check-fill display-3 text-success mb-3"></i>
             <h4 class="fw-bold">¡Registro Exitoso!</h4>
-            <p class="text-muted">
-              Por motivos de seguridad, debes verificar tu correo. 
-              <strong>Para esta prueba:</strong> Revisa la consola negra de Spring Boot (backend), copia el token generado y valídalo manualmente.
+            <p class="text-muted mb-4">
+              Hemos simulado el envío de un correo de confirmación. Como esto es una demostración, 
+              aquí tienes tu token de seguridad para activar tu cuenta. Cópialo y úsalo en la pantalla de ingreso.
             </p>
-            <p class="small bg-light p-2 rounded">
-              <em>Sugerencia: Para probar rápido el catálogo, mejor ingresa con la cuenta de prueba preexistente: <b>cliente&#64;polleria.com / Cliente123!</b></em>
-            </p>
-            <a routerLink="/login" class="btn btn-pollos-red fw-bold w-100 mt-3">Ir a Ingresar</a>
+            
+            <div class="alert alert-warning p-3 shadow-sm d-inline-block text-start mb-4">
+              <span class="small fw-bold text-uppercase text-secondary d-block mb-1">Tu token de verificación:</span>
+              <code class="fs-5 text-dark fw-bold" style="word-break: break-all;">{{ tokenGenerado }}</code>
+            </div>
+
+            <a routerLink="/login" class="btn btn-pollos-red fw-bold w-100 mt-2">Ir a Verificar e Ingresar</a>
           </div>
 
           <form *ngIf="!exito" (ngSubmit)="onSubmit()" #registroForm="ngForm">

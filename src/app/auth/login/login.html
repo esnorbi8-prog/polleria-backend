@@ -21,6 +21,28 @@
               {{ errorMessage }}
             </div>
 
+            <!-- Formulario de Verificación de Token -->
+            <div *ngIf="mostrarVerificacion" class="p-3 mb-4 rounded" style="background-color: #fff3cd; border: 1px solid #ffe69c;">
+              <h5 class="fw-bold text-dark"><i class="bi bi-shield-check text-warning"></i> Verificar Cuenta</h5>
+              <p class="small text-muted mb-2">Ingresa el token que obtuviste al finalizar tu registro para activar tu cuenta.</p>
+              
+              <div *ngIf="mensajeVerificacion" class="alert p-2 small fw-bold" 
+                   [ngClass]="exitoVerificacion ? 'alert-success' : 'alert-danger'">
+                {{ mensajeVerificacion }}
+              </div>
+
+              <div class="input-group mb-2">
+                <input type="text" class="form-control" name="token" [(ngModel)]="token" placeholder="Escribe tu token aquí">
+                <button type="button" class="btn btn-warning fw-bold" [disabled]="!token || verificando" (click)="verificarToken()">
+                  {{ verificando ? 'Verificando...' : 'Verificar' }}
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="exitoVerificacion && !mostrarVerificacion" class="alert alert-success fw-bold shadow-sm text-center">
+              {{ mensajeVerificacion }}
+            </div>
+
             <div class="mb-4">
               <label class="form-label fw-bold text-dark">Correo Electrónico</label>
               <div class="input-group input-group-lg">
@@ -40,10 +62,14 @@
             </div>
 
             <button type="submit" class="btn btn-pollos-red w-100 btn-lg rounded-pill" 
-                    [disabled]="!loginForm.valid || loading">
+                    [disabled]="!loginForm.valid || loading || verificando">
               {{ loading ? 'Autenticando...' : 'Entrar al Sistema' }}
             </button>
           </form>
+          
+          <div class="text-center mt-4">
+            <small class="text-muted">¿No tienes cuenta? <a routerLink="/registro" class="text-pollos-red fw-bold text-decoration-none">Regístrate aquí</a></small>
+          </div>
         </div>
       </div>
     </div>

@@ -58,7 +58,7 @@
         </ng-container>
         
         <ng-container *ngIf="user">
-          <span class="fw-bold me-lg-3 text-dark mb-2 mb-lg-0">Hola, {{ user.email.split('@')[0] }}</span>
+          <span class="fw-bold me-lg-3 text-dark mb-2 mb-lg-0">Hola, {{ user.nombreCompleto }}</span>
           <button (click)="logout()" class="btn btn-pollos-red btn-sm px-4 fw-bold w-100 w-lg-auto">Salir</button>
         </ng-container>
       </div>

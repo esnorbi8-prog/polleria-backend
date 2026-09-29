@@ -1,10 +1,11 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductoService, Producto } from '../../../core/services/producto.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -17,6 +18,7 @@ export class Dashboard implements OnInit {
   private productoService = inject(ProductoService);
   private pedidoService = inject(PedidoService);
   private http = inject(HttpClient);
+  private cdr = inject(ChangeDetectorRef);
 
   productos = signal<Producto[]>([]);
   
@@ -24,6 +26,7 @@ export class Dashboard implements OnInit {
   pedidosHoy = signal<number>(0);
   ingresosHoy = signal<number>(0);
   empleadosActivos = signal<number>(0);
+  empleados = signal<any[]>([]);
 
   // Gráfico de Barras
   ventasPorDia = signal<{fecha: string, total: number}[]>([]);
@@ -31,8 +34,8 @@ export class Dashboard implements OnInit {
 
   mostrarFormulario = false;
   productoEnEdicion: Partial<Producto> | null = null;
-  // Para la foto en base64
   imagenBase64 = '';
+  cargandoDatos = true; // Indicador de carga añadido
 
   ngOnInit() {
     this.cargarProductos();
@@ -40,9 +43,14 @@ export class Dashboard implements OnInit {
   }
 
   cargarEstadisticas() {
-    // Cargar Ventas/Pedidos
-    this.pedidoService.getPedidos().subscribe({
-      next: (pedidos) => {
+    this.cargandoDatos = true;
+
+    const reqPedidos = this.pedidoService.getPedidos();
+    const reqUsuarios = this.http.get<any[]>(environment.apiUrl + '/usuarios');
+
+    forkJoin([reqPedidos, reqUsuarios]).subscribe({
+      next: ([pedidos, usuarios]) => {
+        // --- Procesar Pedidos ---
         const hoy = new Date().toISOString().substring(0, 10);
         let delDia = pedidos.filter(p => p.fechaCreacion?.startsWith(hoy));
         if (delDia.length === 0) delDia = pedidos;
@@ -51,7 +59,6 @@ export class Dashboard implements OnInit {
         const suma = delDia.reduce((acc, p) => acc + (p.total || 0), 0);
         this.ingresosHoy.set(suma);
 
-        // -- Lógica para el Gráfico de Barras (Últimos 7 días) --
         const mapaVentas = new Map<string, number>();
         pedidos.forEach(p => {
           if (!p.fechaCreacion) return;
@@ -71,20 +78,51 @@ export class Dashboard implements OnInit {
         }
 
         const maximo = Math.max(...ultimos7Dias.map(v => v.total));
-        this.maxVenta.set(maximo > 0 ? maximo : 1); // Evitar división por 0
+        this.maxVenta.set(maximo > 0 ? maximo : 1); 
         this.ventasPorDia.set(ultimos7Dias);
-      },
-      error: (e) => console.error(e)
-    });
 
-    // Cargar Empleados (excluyendo CLIENTE)
-    this.http.get<any[]>(environment.apiUrl + '/usuarios').subscribe({
-      next: (usuarios) => {
-        const staff = usuarios.filter(u => u.rol !== 'CLIENTE' && u.activo === true);
-        this.empleadosActivos.set(staff.length);
+        // --- Procesar Usuarios ---
+        const staff = usuarios.filter(u => u.rol !== 'CLIENTE');
+        this.empleados.set(staff);
+        this.empleadosActivos.set(staff.filter(u => u.activo === true).length);
+
+        // Apagar loader
+        this.cargandoDatos = false;
+        this.cdr.detectChanges();
       },
-      error: (e) => console.error(e)
+      error: (e) => {
+        console.error(e);
+        this.cargandoDatos = false;
+        this.cdr.detectChanges();
+      }
     });
+  }
+
+  cambiarEstadoEmpleado(id: number, activoActual: boolean) {
+    const nuevoEstado = !activoActual;
+    const msg = nuevoEstado 
+      ? 'Creemos en las segundas oportunidades. ¿Le devolvemos el acceso a este empleado para que vuelva a trabajar con nosotros?' 
+      : 'Vamos a quitarle las llaves del negocio. Este empleado no podrá ingresar al sistema hasta que lo perdones. ¿Procedemos?';
+    
+    this.modalConfirmacion = {
+      mostrar: true,
+      titulo: nuevoEstado ? 'Reactivar Acceso' : 'Suspender Acceso',
+      mensaje: msg,
+      tipo: 'warning',
+      textoBoton: nuevoEstado ? 'Sí, darle acceso' : 'Sí, suspender',
+      imagenUrl: '',
+      accionConfirmar: () => {
+        this.cerrarModalConfirmacion();
+        this.http.patch(environment.apiUrl + `/usuarios/${id}/estado?activo=${nuevoEstado}`, {}).subscribe({
+          next: () => {
+            this.cargarEstadisticas();
+          },
+          error: (e) => {
+            this.modalNotificacion = { mostrar: true, titulo: 'Error', mensaje: 'No pudimos procesar el cambio en los permisos.', tipo: 'error' };
+          }
+        });
+      }
+    };
   }
 
   cargarProductos() {
@@ -104,9 +142,18 @@ export class Dashboard implements OnInit {
   }
 
   eliminarProducto(id: number) {
-    if (confirm('¿Seguro que deseas eliminar este producto?')) {
-      this.productoService.eliminarProducto(id).subscribe(() => this.cargarProductos());
-    }
+    this.modalConfirmacion = {
+      mostrar: true,
+      titulo: 'Retirar del Menú',
+      mensaje: 'Este platillo desaparecerá de nuestra carta para siempre y nuestros clientes ya no podrán pedirlo. ¿Estás seguro?',
+      tipo: 'danger',
+      textoBoton: 'Quitar del menú',
+      imagenUrl: '',
+      accionConfirmar: () => {
+        this.cerrarModalConfirmacion();
+        this.productoService.eliminarProducto(id).subscribe(() => this.cargarProductos());
+      }
+    };
   }
 
   onFileSelected(event: any) {
@@ -143,5 +190,138 @@ export class Dashboard implements OnInit {
   cancelarEdicion() {
     this.mostrarFormulario = false;
     this.productoEnEdicion = null;
+  }
+
+  // --- Lógica para Nuevo Empleado ---
+  mostrarFormularioEmpleado = false;
+  empleadoNuevo = { nombreCompleto: '', email: '', password: '', rol: 'COCINERO' };
+  empleadoEnEdicion: any = null;
+
+  // Estado del Modal de Notificación
+  modalNotificacion = {
+    mostrar: false,
+    titulo: '',
+    mensaje: '',
+    tipo: 'success'
+  };
+
+  // Estado del Modal de Confirmación
+  modalConfirmacion = {
+    mostrar: false,
+    titulo: '',
+    mensaje: '',
+    tipo: 'danger',
+    textoBoton: 'Confirmar',
+    imagenUrl: '', // <- Nueva propiedad para imagen personalizada
+    accionConfirmar: () => {}
+  };
+
+  cerrarModal() {
+    this.modalNotificacion.mostrar = false;
+  }
+
+  cerrarModalConfirmacion() {
+    this.modalConfirmacion.mostrar = false;
+  }
+
+  nuevoEmpleado() {
+    this.empleadoNuevo = { nombreCompleto: '', email: '', password: '', rol: 'COCINERO' };
+    this.empleadoEnEdicion = null;
+    this.mostrarFormularioEmpleado = true;
+    this.mostrarFormulario = false;
+  }
+
+  editarEmpleado(emp: any) {
+    this.empleadoNuevo = { 
+      nombreCompleto: emp.nombreCompleto, 
+      email: emp.email, 
+      password: '', // opcional en edición
+      rol: emp.rol 
+    };
+    this.empleadoEnEdicion = emp;
+    this.mostrarFormularioEmpleado = true;
+    this.mostrarFormulario = false;
+  }
+
+  eliminarEmpleado(id: number) {
+    this.modalConfirmacion = {
+      mostrar: true,
+      titulo: 'Despido Definitivo',
+      mensaje: 'Te vamos a despedir de la familia de pollos hermanos, te enviaremos con San Cuchito.',
+      tipo: 'danger',
+      textoBoton: 'Sí, enviar con Cuchito',
+      imagenUrl: '/img/cuchito.jpg', // <- La imagen que subió el usuario
+      accionConfirmar: () => {
+        this.cerrarModalConfirmacion();
+        this.http.delete(environment.apiUrl + `/usuarios/${id}`).subscribe({
+          next: () => {
+            this.cargarEstadisticas();
+            this.modalNotificacion = { mostrar: true, titulo: '¡Amén!', mensaje: 'El empleado ya se fue con San Cuchito.', tipo: 'success' };
+          },
+          error: (e) => {
+            this.modalNotificacion = { mostrar: true, titulo: 'Hubo un problema', mensaje: e.error?.mensaje || 'No pudimos procesar el despido.', tipo: 'error' };
+          }
+        });
+      }
+    };
+  }
+
+  cancelarEmpleado() {
+    this.mostrarFormularioEmpleado = false;
+    this.empleadoEnEdicion = null;
+  }
+
+  guardarEmpleado() {
+    if (!this.empleadoNuevo.nombreCompleto || !this.empleadoNuevo.email || (!this.empleadoEnEdicion && !this.empleadoNuevo.password)) {
+      this.modalNotificacion = {
+        mostrar: true,
+        titulo: 'Faltan Datos',
+        mensaje: 'Por favor, complete todos los campos obligatorios del formulario.',
+        tipo: 'error'
+      };
+      return;
+    }
+    
+    if (this.empleadoEnEdicion) {
+      // Modo Edición
+      this.http.put(environment.apiUrl + `/usuarios/${this.empleadoEnEdicion.id}`, this.empleadoNuevo).subscribe({
+        next: () => {
+          this.mostrarFormularioEmpleado = false;
+          this.empleadoEnEdicion = null;
+          this.cargarEstadisticas(); 
+          this.modalNotificacion = {
+            mostrar: true,
+            titulo: '¡Empleado Actualizado!',
+            mensaje: `Los datos se han guardado con éxito.`,
+            tipo: 'success'
+          };
+        },
+        error: (e) => {
+          this.modalNotificacion = { mostrar: true, titulo: 'Error', mensaje: e.error?.mensaje || 'No se pudo actualizar.', tipo: 'error' };
+        }
+      });
+    } else {
+      // Modo Creación
+      this.http.post(environment.apiUrl + '/usuarios', this.empleadoNuevo).subscribe({
+        next: () => {
+          this.mostrarFormularioEmpleado = false;
+          this.cargarEstadisticas(); 
+          this.modalNotificacion = {
+            mostrar: true,
+            titulo: '¡Empleado Creado!',
+            mensaje: `El empleado ${this.empleadoNuevo.nombreCompleto} ha sido registrado con éxito.`,
+            tipo: 'success'
+          };
+        },
+        error: (e) => {
+          this.modalNotificacion = {
+            mostrar: true,
+            titulo: 'Error',
+            mensaje: e.error?.mensaje || 'No se pudo crear el empleado. Verifica los datos.',
+            tipo: 'error'
+          };
+        }
+      });
+    }
   }
 }

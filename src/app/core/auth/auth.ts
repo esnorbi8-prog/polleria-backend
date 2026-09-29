@@ -69,6 +69,17 @@ export class Auth {
     return user ? user.token : null;
   }
 
+  setToken(newToken: string) {
+    const user = this.currentUser();
+    if (user) {
+      const updatedUser = { ...user, token: newToken };
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem('polleria_user', JSON.stringify(updatedUser));
+      }
+      this.currentUser.set(updatedUser);
+    }
+  }
+
   private redirectByRole(rol: string) {
     switch(rol) {
       case 'CLIENTE': this.router.navigate(['/cliente/home']); break;
