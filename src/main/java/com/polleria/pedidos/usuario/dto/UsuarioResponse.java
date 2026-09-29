@@ -18,6 +18,7 @@ public class UsuarioResponse {
     private final boolean emailVerificado;
     private final boolean activo;
     private final LocalDateTime fechaCreacion;
+    private final String tokenVerificacion; // Para la demo en el frontend
 
     public UsuarioResponse(Usuario u) {
         this.id = u.getId();
@@ -27,6 +28,7 @@ public class UsuarioResponse {
         this.emailVerificado = u.isEmailVerificado();
         this.activo = u.isActivo();
         this.fechaCreacion = u.getFechaCreacion();
+        this.tokenVerificacion = u.getTokenVerificacion();
     }
 
     public Long getId() {
@@ -55,5 +57,9 @@ public class UsuarioResponse {
 
     public LocalDateTime getFechaCreacion() {
         return fechaCreacion;
+    }
+
+    public String getTokenVerificacion() {
+        return tokenVerificacion;
     }
 }

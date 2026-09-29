@@ -51,6 +51,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                             new UsernamePasswordAuthenticationToken(u, null, u.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                    // Refrescar el token si el admin o cocina muestran actividad de modificación (creación o edición)
+                    String rol = u.getRol().name();
+                    if ("ADMIN".equals(rol) || "COCINA".equals(rol)) {
+                        String method = request.getMethod();
+                        if ("POST".equals(method) || "PUT".equals(method) || "PATCH".equals(method) || "DELETE".equals(method)) {
+                            String nuevoToken = jwtService.generarToken(u.getEmail(), rol, u.getId());
+                            response.setHeader("X-New-Token", nuevoToken);
+                            response.setHeader("Access-Control-Expose-Headers", "X-New-Token");
+                        }
+                    }
                 }
             }
         }

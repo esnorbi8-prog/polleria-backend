@@ -49,4 +49,18 @@ public class AdminUsuarioController {
         Usuario usuario = usuarioService.cambiarActivo(id, activo);
         return new UsuarioResponse(usuario);
     }
+
+    /** PUT /api/usuarios/{id} — edita una cuenta de personal. */
+    @PutMapping("/{id}")
+    public UsuarioResponse editar(@PathVariable Long id, @Valid @RequestBody com.polleria.pedidos.usuario.dto.EdicionPersonalRequest request) {
+        Usuario usuario = usuarioService.editarPersonal(id, request);
+        return new UsuarioResponse(usuario);
+    }
+
+    /** DELETE /api/usuarios/{id} — elimina permanentemente una cuenta. */
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void eliminar(@PathVariable Long id) {
+        usuarioService.eliminarUsuario(id);
+    }
 }

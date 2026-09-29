@@ -31,7 +31,15 @@ public class JwtService {
 
     public String generarToken(String email, String rol, Long usuarioId) {
         Date ahora = new Date();
-        Date expira = new Date(ahora.getTime() + expirationMs);
+        
+        long duracion = expirationMs;
+        if ("ADMIN".equals(rol)) {
+            duracion = 10 * 60 * 1000; // 10 minutos
+        } else if ("COCINA".equals(rol)) {
+            duracion = 30 * 60 * 1000; // 30 minutos
+        }
+        
+        Date expira = new Date(ahora.getTime() + duracion);
 
         return Jwts.builder()
                 .subject(email)
