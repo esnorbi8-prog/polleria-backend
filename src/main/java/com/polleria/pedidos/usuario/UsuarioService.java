@@ -108,4 +108,32 @@ public class UsuarioService {
         usuario.setActivo(activo);
         return usuarioRepository.save(usuario);
     }
+
+    @Transactional
+    public Usuario editarPersonal(Long usuarioId, com.polleria.pedidos.usuario.dto.EdicionPersonalRequest request) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new com.polleria.pedidos.common.RecursoNoEncontradoException("Usuario no encontrado: " + usuarioId));
+        
+        if (!usuario.getEmail().equals(request.getEmail()) && usuarioRepository.existsByEmail(request.getEmail())) {
+            throw new EmailYaRegistradoException(request.getEmail());
+        }
+
+        usuario.setNombreCompleto(request.getNombreCompleto());
+        usuario.setEmail(request.getEmail());
+        usuario.setRol(request.getRol());
+
+        if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
+            usuario.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        }
+
+        return usuarioRepository.save(usuario);
+    }
+
+    @Transactional
+    public void eliminarUsuario(Long usuarioId) {
+        if (!usuarioRepository.existsById(usuarioId)) {
+            throw new com.polleria.pedidos.common.RecursoNoEncontradoException("Usuario no encontrado: " + usuarioId);
+        }
+        usuarioRepository.deleteById(usuarioId);
+    }
 }
