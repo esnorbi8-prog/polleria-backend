@@ -39,7 +39,7 @@
               
               <div class="bg-light p-2 rounded mb-3">
                 <p class="mb-1 fw-bold"><i class="bi bi-geo-alt-fill text-danger"></i> Dirección de Entrega:</p>
-                <p class="mb-0 text-muted ms-3">{{ p.direccionEntrega || 'No especificada' }}</p>
+                <p class="mb-0 text-muted ms-3">{{ p.direccionEntrega ? p.direccionEntrega.split('|')[0] : 'No especificada' }}</p>
               </div>
               
               <div class="bg-light p-2 rounded mb-3">
@@ -79,7 +79,7 @@
               
               <div class="bg-white p-2 rounded mb-3 border">
                 <p class="mb-1 fw-bold"><i class="bi bi-geo-alt-fill text-danger"></i> Entregando en:</p>
-                <p class="mb-0 fs-5 text-dark ms-3">{{ p.direccionEntrega }}</p>
+                <p class="mb-0 fs-5 text-dark ms-3">{{ p.direccionEntrega ? p.direccionEntrega.split('|')[0] : '' }}</p>
               </div>
 
               <div class="bg-white p-2 rounded mb-3 border">

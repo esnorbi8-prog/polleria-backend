@@ -93,7 +93,21 @@ export class RepartoTablero implements OnInit, OnDestroy {
     if (!direccion) {
       direccion = 'Ica, Peru';
     }
-    const url = `https://maps.google.com/maps?q=${encodeURIComponent(direccion)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+
+    let query = direccion;
+    // Si la dirección viene con coordenadas exactas invisibles (Ej: "Calle Tulipanes | -14.075,-75.729")
+    if (direccion.includes('|')) {
+      const partes = direccion.split('|');
+      query = partes[1].trim(); // Usamos las coordenadas exactas para el pin rojo
+    } else {
+      // Nominatim genera direcciones con muchas comas. Extraemos solo la calle y ciudad.
+      const comas = direccion.split(',');
+      if (comas.length >= 4) {
+        query = `${comas[0].trim()}, Ica, Perú`;
+      }
+    }
+
+    const url = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=17&ie=UTF8&iwloc=B&output=embed`;
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 }

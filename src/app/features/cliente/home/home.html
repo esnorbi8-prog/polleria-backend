@@ -120,6 +120,10 @@
                     <i class="bi bi-search"></i> Buscar
                   </button>
                 </div>
+                <div class="mb-2">
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="referencia" 
+                         placeholder="Referencia (Ej: Casa verde de 2 pisos, frente al parque)">
+                </div>
                 <small class="text-muted d-block mb-2">📍 Haz clic en el mapa, o busca tu calle arriba:</small>
                 <div id="checkoutMap" class="rounded border" style="height: 200px; width: 100%; z-index: 1;"></div>
               </div>
