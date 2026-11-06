@@ -11,6 +11,11 @@
     <div class="spinner-border text-pollos-red" role="status"></div>
   </div>
 
+  <div *ngIf="gpsError()" class="alert alert-warning fw-bold d-flex justify-content-between align-items-center gap-2">
+    <span><i class="bi bi-geo-alt"></i> {{ gpsError() }}</span>
+    <button class="btn btn-sm btn-dark" (click)="iniciarGps()" *ngIf="gpsEstado() === 'error'">Reintentar</button>
+  </div>
+
   <div *ngIf="errorMsg()" class="alert alert-danger fw-bold">
     {{ errorMsg() }}
   </div>
@@ -30,7 +35,7 @@
             <p class="mt-3 fw-bold">No hay pedidos listos de tipo delivery por ahora</p>
           </div>
 
-          <div class="card mb-3 border-info border-opacity-50" *ngFor="let p of pedidosListos()" style="border-left: 5px solid #17a2b8 !important;">
+          <div class="card mb-3 border-info border-opacity-50" *ngFor="let p of pedidosListos(); trackBy: trackById" style="border-left: 5px solid #17a2b8 !important;">
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-start mb-2">
                 <h5 class="fw-bold text-dark mb-0">Ticket #{{ p.id }}</h5>
@@ -71,7 +76,7 @@
             <p class="mt-3 fw-bold">No tienes entregas en curso en este momento</p>
           </div>
 
-          <div class="card mb-3 border-secondary border-opacity-50 shadow-sm" *ngFor="let p of pedidosEnCamino()" style="border-left: 5px solid #6c757d !important;">
+          <div class="card mb-3 border-secondary border-opacity-50 shadow-sm" *ngFor="let p of pedidosEnCamino(); trackBy: trackById" style="border-left: 5px solid #6c757d !important;">
             <div class="card-body bg-light">
               <div class="d-flex justify-content-between align-items-start mb-2">
                 <h5 class="fw-bold text-dark mb-0">Ticket #{{ p.id }}</h5>
@@ -79,7 +84,7 @@
               
               <div class="bg-white p-2 rounded mb-3 border">
                 <p class="mb-1 fw-bold"><i class="bi bi-geo-alt-fill text-danger"></i> Entregando en:</p>
-                <p class="mb-0 fs-5 text-dark ms-3">{{ p.direccionEntrega ? p.direccionEntrega.split('|')[0] : '' }}</p>
+                <p class="mb-0 fs-5 text-dark ms-3">{{ textoDireccion(p.direccionEntrega) }}</p>
               </div>
 
               <div class="bg-white p-2 rounded mb-3 border">
@@ -87,11 +92,20 @@
                 <p class="mb-0 text-dark ms-3">{{ p.cliente.nombre }} - {{ p.cliente.telefono }}</p>
               </div>
 
-              <!-- GPS MAPA EMBEBIDO -->
-              <div class="mb-3 rounded overflow-hidden shadow-sm border border-secondary" style="height: 200px;">
-                <iframe width="100%" height="200" style="border:0;" loading="lazy" [src]="getMapaUrl(p.direccionEntrega)"></iframe>
+              <!-- GPS EN VIVO (Leaflet + OpenStreetMap, sin Google) -->
+              <div class="mapa-reparto mb-2 rounded overflow-hidden shadow-sm border border-secondary" [id]="'mapa-' + p.id"></div>
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 small mb-3">
+                <span [ngClass]="claseGps()"><i class="bi bi-broadcast"></i> {{ textoGps() }}</span>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-secondary" (click)="centrarEnMi(p.id)" [disabled]="!ubicacionActual()">
+                    <i class="bi bi-crosshair"></i> Centrar
+                  </button>
+                  <a *ngIf="urlRuta(p) as url" [href]="url" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-sign-turn-right"></i> Ver ruta
+                  </a>
+                </div>
               </div>
-              
+
               <button class="btn btn-success w-100 fw-bold py-3 shadow-sm" (click)="marcarEntregado(p.id)">
                 <i class="bi bi-check2-all fs-5"></i> Confirmar Entrega
               </button>

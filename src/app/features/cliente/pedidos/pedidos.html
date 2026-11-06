@@ -76,6 +76,15 @@
               </div>
             </div>
           </div>
+
+          <!-- SEGUIMIENTO EN VIVO DEL REPARTIDOR (RF-C09) -->
+          <div *ngIf="pedido.estado === 'EN_CAMINO' && pedido.tipoEntrega === 'DELIVERY'" class="mt-4">
+            <h6 class="fw-bold text-pollos-red mb-2"><i class="bi bi-geo-alt-fill"></i> Tu pedido va en camino</h6>
+            <div class="mapa-seguimiento rounded overflow-hidden shadow-sm border" [id]="'seguimiento-' + pedido.id"></div>
+            <small class="d-block mt-2 fw-semibold" [ngClass]="ubicaciones()[pedido.id] ? 'text-success' : 'text-muted'">
+              <i class="bi bi-broadcast"></i> {{ textoSeguimiento(pedido.id) }}
+            </small>
+          </div>
         </div>
       </div>
     </div>
