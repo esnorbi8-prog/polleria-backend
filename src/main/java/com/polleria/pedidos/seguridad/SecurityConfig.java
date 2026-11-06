@@ -128,6 +128,11 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/api/pedidos/*/estado")
                         .hasAnyRole("COCINERO", "REPARTIDOR", "CAJERA", "ADMINISTRADOR")
 
+                        // GPS del repartidor (RF-D02): solo reparto/admin envían la posición;
+                        // consultarla (GET) cae en la regla general de "estar logueado"
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/pedidos/*/ubicacion")
+                        .hasAnyRole("REPARTIDOR", "ADMINISTRADOR")
+
                         // Crear pedido / pagar: el propio cliente, o caja/admin (pedido presencial)
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/pedidos")
                         .hasAnyRole("CLIENTE", "CAJERA", "ADMINISTRADOR")
