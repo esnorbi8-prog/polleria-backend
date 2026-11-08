@@ -1,0 +1,4 @@
+node_modules/
+# Sesión de WhatsApp vinculada (es como una contraseña: NUNCA subirla)
+.wwebjs_auth/
+.wwebjs_cache/

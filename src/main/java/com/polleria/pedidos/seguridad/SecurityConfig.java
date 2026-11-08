@@ -111,6 +111,9 @@ public class SecurityConfig {
                         // Catálogo público (RF-C03)
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/productos/**").permitAll()
 
+                        // Bot de WhatsApp: supervisión y mensajes de prueba, solo administrador (RF-A10)
+                        .requestMatchers("/api/whatsapp/**").hasRole("ADMINISTRADOR")
+
                         // Gestión de personal: solo administrador (RF-A01)
                         .requestMatchers("/api/usuarios/**").hasRole("ADMINISTRADOR")
 

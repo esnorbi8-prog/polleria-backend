@@ -1,0 +1,19 @@
+{
+  "name": "polleria-whatsapp-service",
+  "version": "1.0.0",
+  "description": "Servicio de WhatsApp de la pollería: se vincula por QR (whatsapp-web.js) y envía los avisos que le pide el backend.",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "qrcode": "^1.5.4",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.34.7"
+  }
+}

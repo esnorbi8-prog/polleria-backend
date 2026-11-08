@@ -37,6 +37,9 @@ public class UbicacionRepartidor {
     @Column(nullable = false)
     private LocalDateTime fechaActualizacion = LocalDateTime.now();
 
+    /** true cuando ya se le avisó al cliente "tu motorizado está llegando" (para no repetirlo). */
+    private Boolean avisoLlegadaEnviado = false;
+
     public UbicacionRepartidor() {
     }
 
@@ -53,4 +56,6 @@ public class UbicacionRepartidor {
     public void setRepartidorEmail(String repartidorEmail) { this.repartidorEmail = repartidorEmail; }
     public LocalDateTime getFechaActualizacion() { return fechaActualizacion; }
     public void setFechaActualizacion(LocalDateTime fechaActualizacion) { this.fechaActualizacion = fechaActualizacion; }
+    public boolean isAvisoLlegadaEnviado() { return Boolean.TRUE.equals(avisoLlegadaEnviado); }
+    public void setAvisoLlegadaEnviado(boolean avisoLlegadaEnviado) { this.avisoLlegadaEnviado = avisoLlegadaEnviado; }
 }
