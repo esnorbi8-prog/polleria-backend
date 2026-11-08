@@ -111,6 +111,9 @@ public class SecurityConfig {
                         // Catálogo público (RF-C03)
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/productos/**").permitAll()
 
+                        // Bot de WhatsApp: supervisión y mensajes de prueba, solo administrador (RF-A10)
+                        .requestMatchers("/api/whatsapp/**").hasRole("ADMINISTRADOR")
+
                         // Gestión de personal: solo administrador (RF-A01)
                         .requestMatchers("/api/usuarios/**").hasRole("ADMINISTRADOR")
 
@@ -127,6 +130,11 @@ public class SecurityConfig {
                         // Cambiar el estado de un pedido: cocina, reparto, caja o admin
                         .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/api/pedidos/*/estado")
                         .hasAnyRole("COCINERO", "REPARTIDOR", "CAJERA", "ADMINISTRADOR")
+
+                        // GPS del repartidor (RF-D02): solo reparto/admin envían la posición;
+                        // consultarla (GET) cae en la regla general de "estar logueado"
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/pedidos/*/ubicacion")
+                        .hasAnyRole("REPARTIDOR", "ADMINISTRADOR")
 
                         // Crear pedido / pagar: el propio cliente, o caja/admin (pedido presencial)
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/pedidos")
