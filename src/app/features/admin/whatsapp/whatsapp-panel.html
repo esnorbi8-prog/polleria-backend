@@ -1,0 +1,234 @@
+<div class="container py-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+      <a routerLink="/admin" class="text-muted text-decoration-none small fw-semibold"><i class="bi bi-arrow-left"></i> Volver a Administración</a>
+      <h2 class="fw-bold mb-0 mt-1" style="color: #8b0000;"><i class="bi bi-whatsapp text-success me-2"></i>Bot de WhatsApp</h2>
+    </div>
+    <button class="btn btn-outline-dark fw-bold" (click)="refrescar()"><i class="bi bi-arrow-clockwise"></i> Refrescar</button>
+  </div>
+
+  <div *ngIf="errorMsg()" class="alert alert-danger fw-semibold d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-exclamation-triangle"></i> {{ errorMsg() }}</span>
+    <button type="button" class="btn-close" (click)="errorMsg.set('')" aria-label="Cerrar"></button>
+  </div>
+
+  <div class="row g-4">
+    <!-- ===================== COLUMNA IZQUIERDA ===================== -->
+    <div class="col-lg-4">
+
+      <!-- Estado de la conexión -->
+      <div class="card pollos-card shadow-sm border-0 mb-4">
+        <div class="card-body">
+          <h6 class="fw-bold text-muted text-uppercase small mb-3">Conexión</h6>
+
+          <div *ngIf="!estado()" class="text-muted small">Consultando...</div>
+
+          <ng-container *ngIf="estado() as e">
+
+            <!-- ===== WhatsApp vinculado por QR ===== -->
+            <ng-container *ngIf="e.proveedor === 'webqr'; else conexionApi">
+              <div class="d-flex align-items-center gap-3">
+                <span class="estado-punto" [class.activo]="e.servicio?.listo" [class.pendiente]="e.servicio?.disponible && !e.servicio?.listo"></span>
+                <div>
+                  <div class="fw-bold fs-5">{{ textoEstadoQr() }}</div>
+                  <div class="text-muted small">WhatsApp vinculado por QR</div>
+                </div>
+              </div>
+
+              <!-- Listo -->
+              <div *ngIf="e.servicio?.listo" class="small mt-3 p-2 rounded bg-light">
+                Enviando desde <strong>{{ numeroVinculado() }}</strong>
+                <span *ngIf="e.servicio?.nombre"> ({{ e.servicio?.nombre }})</span>.
+                <button class="btn btn-link btn-sm text-danger p-0 d-block mt-1" (click)="desvincular()" [disabled]="desvinculando()">
+                  <i class="bi bi-box-arrow-right"></i> {{ desvinculando() ? 'Desvinculando...' : 'Desvincular este WhatsApp' }}
+                </button>
+              </div>
+
+              <!-- Esperando QR -->
+              <div *ngIf="e.servicio?.estado === 'esperando_qr' && e.servicio?.qr" class="text-center mt-3">
+                <img [src]="e.servicio?.qr" alt="Código QR para vincular WhatsApp" class="qr-img">
+                <ol class="small text-start mt-3 mb-0 ps-3">
+                  <li>En el celular de la pollería abre <strong>WhatsApp</strong>.</li>
+                  <li>Ve a <strong>Dispositivos vinculados → Vincular un dispositivo</strong>.</li>
+                  <li>Apunta la cámara a este código.</li>
+                </ol>
+                <p class="small text-muted mt-2 mb-0">El código se renueva solo cada ~20 segundos.</p>
+              </div>
+
+              <!-- Iniciando / autenticando -->
+              <div *ngIf="e.servicio?.estado === 'iniciando' || e.servicio?.estado === 'autenticando'" class="text-center my-3">
+                <div class="spinner-border text-success" role="status"></div>
+              </div>
+
+              <!-- Servicio apagado o con error -->
+              <div *ngIf="!e.servicio?.disponible || e.servicio?.estado === 'desconectado'" class="small mt-3 p-2 rounded alert-warning" style="border: 1px solid rgba(0,0,0,.08);">
+                <p class="mb-2">{{ e.servicio?.error || 'El servicio de WhatsApp no responde.' }}</p>
+                <ng-container *ngIf="!e.servicio?.disponible">
+                  Ábrelo en otra terminal:
+                  <code class="d-block mt-1 p-2 bg-white rounded">cd C:\proyectos\polleria-backend\whatsapp-service<br>npm start</code>
+                </ng-container>
+              </div>
+            </ng-container>
+
+            <!-- ===== Meta / Twilio ===== -->
+            <ng-template #conexionApi>
+              <div class="d-flex align-items-center gap-3">
+                <span class="estado-punto" [class.activo]="e.conectado"></span>
+                <div>
+                  <div class="fw-bold fs-5">{{ e.conectado ? 'Conectado' : 'Modo simulado' }}</div>
+                  <div class="text-muted small text-capitalize">Proveedor: {{ e.proveedor }}</div>
+                </div>
+              </div>
+              <div class="small mt-3 p-2 rounded bg-light">
+                <ng-container *ngIf="e.conectado">Enviando con <strong>{{ e.modoEnvio }}</strong>.</ng-container>
+                <ng-container *ngIf="!e.conectado">
+                  Faltan las credenciales del proveedor. Los mensajes se registran aquí y en la consola del backend, pero <strong>no llegan</strong> a los celulares.
+                </ng-container>
+              </div>
+            </ng-template>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Mensaje de prueba -->
+      <div class="card pollos-card shadow-sm border-0 mb-4">
+        <div class="card-body">
+          <h6 class="fw-bold text-muted text-uppercase small mb-3">Enviar mensaje de prueba</h6>
+
+          <label class="form-label small fw-semibold" for="telPrueba">Celular</label>
+          <div class="input-group mb-3">
+            <span class="input-group-text">+51</span>
+            <input id="telPrueba" type="tel" class="form-control" placeholder="935274267" maxlength="11"
+                   [(ngModel)]="telefonoPrueba" (keyup.enter)="enviarPrueba()">
+          </div>
+
+          <label class="form-label small fw-semibold" for="textoPrueba">Mensaje <span class="text-muted fw-normal">(opcional)</span></label>
+          <textarea id="textoPrueba" class="form-control mb-3" rows="2" placeholder="Si lo dejas vacío se envía un saludo de prueba"
+                    [(ngModel)]="textoPrueba"></textarea>
+
+          <div *ngIf="estado() && !puedeEnviar()" class="small text-warning-emphasis mb-2">
+            <i class="bi bi-exclamation-circle"></i> El bot aún no puede enviar mensajes reales; la prueba quedará registrada con su motivo.
+          </div>
+          <button class="btn btn-success w-100 fw-bold" (click)="enviarPrueba()" [disabled]="enviandoPrueba()">
+            <span *ngIf="enviandoPrueba()" class="spinner-border spinner-border-sm me-1"></span>
+            <i *ngIf="!enviandoPrueba()" class="bi bi-send"></i> Enviar prueba
+          </button>
+
+          <div *ngIf="resultadoPrueba() as r" class="mt-3 small p-2 rounded"
+               [class.alert-success]="r.estado === 'ENVIADO'" [class.alert-secondary]="r.estado === 'SIMULADO' || r.estado === 'OMITIDO'"
+               [class.alert-danger]="r.estado === 'ERROR'" style="border: 1px solid rgba(0,0,0,.08);">
+            <ng-container [ngSwitch]="r.estado">
+              <span *ngSwitchCase="'ENVIADO'"><i class="bi bi-check-circle-fill"></i> Enviado. Debería llegar en unos segundos.</span>
+              <span *ngSwitchCase="'SIMULADO'"><i class="bi bi-terminal"></i> Simulado: se mostró en la consola del backend.</span>
+              <span *ngSwitchCase="'OMITIDO'"><i class="bi bi-slash-circle"></i> Omitido: el número no parece un celular válido.</span>
+              <span *ngSwitchCase="'ERROR'"><i class="bi bi-x-circle-fill"></i> Error al enviar. {{ ayudaError(r.detalle) || r.detalle }}</span>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ayuda: cómo recibir mensajes -->
+      <div class="card shadow-sm border-0 ayuda-card">
+        <div class="card-body small">
+          <h6 class="fw-bold mb-2"><i class="bi bi-info-circle"></i> ¿Cómo recibir los mensajes?</h6>
+          <ng-container [ngSwitch]="estado()?.proveedor">
+            <ng-container *ngSwitchCase="'webqr'">
+              <p class="mb-1">Los mensajes salen desde el WhatsApp vinculado. <strong>El cliente no tiene que hacer nada</strong>: le llegan a cualquier número con WhatsApp.</p>
+              <p class="mb-0 text-muted">Integración no oficial: usa un chip secundario para la pollería.</p>
+            </ng-container>
+            <ng-container *ngSwitchCase="'twilio'">
+              <ol class="ps-3 mb-0">
+                <li>Agrega a tus contactos el <strong>+1 415 523 8886</strong> (sandbox de Twilio).</li>
+                <li>Envíale por WhatsApp tu código <strong>join …</strong> (lo ves en la consola de Twilio).</li>
+                <li>Si pasan más de 24 h sin escribirle, vuelve a mandarle un "hola".</li>
+              </ol>
+            </ng-container>
+            <ng-container *ngSwitchDefault>
+              <ol class="ps-3 mb-0">
+                <li>Registra el celular como destinatario en la configuración de la API de Meta.</li>
+                <li>Escríbele "hola" al número de prueba de Meta para abrir la ventana de 24 h.</li>
+              </ol>
+            </ng-container>
+          </ng-container>
+          <p class="mb-0 mt-2 text-muted">Los avisos de pedidos llegan al celular registrado por el cliente.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== COLUMNA DERECHA: HISTORIAL ===================== -->
+    <div class="col-lg-8">
+      <div class="card pollos-card shadow-sm border-0">
+        <div class="card-header bg-white border-bottom py-3">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <h5 class="fw-bold mb-0">Historial de mensajes</h5>
+            <input type="search" class="form-control form-control-sm buscar-pedido" placeholder="Filtrar por pedido #"
+                   [ngModel]="filtroPedido()" (ngModelChange)="filtroPedido.set($event)">
+          </div>
+          <div class="d-flex flex-wrap gap-2 mt-3">
+            <button class="btn btn-sm rounded-pill" [ngClass]="filtro() === 'TODOS' ? 'btn-dark' : 'btn-outline-dark'" (click)="filtro.set('TODOS')">
+              Todos <span class="ms-1 opacity-75">{{ mensajes().length }}</span>
+            </button>
+            <button class="btn btn-sm rounded-pill" [ngClass]="filtro() === 'ENVIADO' ? 'btn-success' : 'btn-outline-success'" (click)="filtro.set('ENVIADO')">
+              Enviados <span class="ms-1 opacity-75">{{ contadores().ENVIADO }}</span>
+            </button>
+            <button class="btn btn-sm rounded-pill" [ngClass]="filtro() === 'ERROR' ? 'btn-danger' : 'btn-outline-danger'" (click)="filtro.set('ERROR')">
+              Con error <span class="ms-1 opacity-75">{{ contadores().ERROR }}</span>
+            </button>
+            <button class="btn btn-sm rounded-pill" [ngClass]="filtro() === 'SIMULADO' ? 'btn-secondary' : 'btn-outline-secondary'" (click)="filtro.set('SIMULADO')">
+              Simulados <span class="ms-1 opacity-75">{{ contadores().SIMULADO }}</span>
+            </button>
+            <button class="btn btn-sm rounded-pill" [ngClass]="filtro() === 'OMITIDO' ? 'btn-secondary' : 'btn-outline-secondary'" (click)="filtro.set('OMITIDO')">
+              Omitidos <span class="ms-1 opacity-75">{{ contadores().OMITIDO }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body p-0">
+          <div *ngIf="cargando()" class="text-center py-5">
+            <div class="spinner-border text-pollos-red" role="status"></div>
+          </div>
+
+          <div *ngIf="!cargando() && mensajesFiltrados().length === 0" class="text-center text-muted py-5 px-3">
+            <i class="bi bi-chat-square-text display-5 opacity-25"></i>
+            <p class="fw-semibold mt-3 mb-1">No hay mensajes para mostrar</p>
+            <p class="small mb-0">Los avisos aparecen aquí cuando un pedido cambia de estado (pago, cocina, reparto, entrega).</p>
+          </div>
+
+          <ul class="list-group list-group-flush" *ngIf="!cargando()">
+            <li class="list-group-item mensaje-item" *ngFor="let m of mensajesFiltrados(); trackBy: trackById"
+                (click)="alternar(m.id)" [class.abierto]="expandidoId() === m.id">
+              <div class="d-flex align-items-center gap-3">
+                <div class="motivo-icono"><i class="bi" [ngClass]="iconoMotivo(m.motivo)"></i></div>
+                <div class="flex-grow-1 min-w-0">
+                  <div class="fw-semibold">
+                    {{ etiquetaMotivo(m.motivo) }}
+                    <span *ngIf="m.pedidoId" class="text-muted fw-normal">· Pedido #{{ m.pedidoId }}</span>
+                  </div>
+                  <div class="small text-muted text-truncate">{{ telefonoLegible(m.destinatario) }} — {{ m.texto }}</div>
+                </div>
+                <div class="text-end flex-shrink-0">
+                  <span class="badge" [ngClass]="claseEstado(m.estado)">{{ m.estado }}</span>
+                  <div class="small text-muted mt-1">{{ fecha(m.fecha) | date:'dd/MM HH:mm:ss' }}</div>
+                </div>
+              </div>
+
+              <!-- Detalle desplegado -->
+              <div *ngIf="expandidoId() === m.id" class="mt-3 ms-md-5" (click)="$event.stopPropagation()">
+                <div class="burbuja-wa">{{ m.texto }}</div>
+                <div *ngIf="m.estado === 'ERROR'" class="alert alert-danger small mt-2 mb-0">
+                  <strong *ngIf="ayudaError(m.detalle) as ayuda">{{ ayuda }}<br></strong>
+                  <span class="text-break detalle-tecnico">{{ m.detalle }}</span>
+                </div>
+                <div *ngIf="m.estado === 'ENVIADO' && m.detalle" class="small text-muted mt-2 text-break">Id del proveedor: {{ m.detalle }}</div>
+                <div *ngIf="m.estado === 'OMITIDO'" class="small text-muted mt-2">{{ m.detalle }}</div>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="card-footer bg-white small text-muted">
+          <i class="bi bi-arrow-repeat"></i> Se actualiza solo cada 10 segundos · Se muestran los últimos 50 mensajes
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

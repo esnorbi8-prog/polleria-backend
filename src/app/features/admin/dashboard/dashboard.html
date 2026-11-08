@@ -1,7 +1,10 @@
 <div class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="fw-bold" style="color: #8b0000;">Tablero de Administración</h2>
-    <button class="btn btn-pollos-red" (click)="nuevoEmpleado()"><i class="bi bi-plus-circle"></i> Nuevo Empleado</button>
+    <div class="d-flex flex-wrap gap-2">
+      <a routerLink="/admin/whatsapp" class="btn btn-success fw-bold"><i class="bi bi-whatsapp"></i> Bot WhatsApp</a>
+      <button class="btn btn-pollos-red" (click)="nuevoEmpleado()"><i class="bi bi-plus-circle"></i> Nuevo Empleado</button>
+    </div>
   </div>
 
   <!-- Skeleton/Spinner de Carga -->

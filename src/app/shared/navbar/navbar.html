@@ -45,7 +45,10 @@
         <!-- Opciones para Administrador -->
         <ng-container *ngIf="user?.rol === 'ADMINISTRADOR'">
           <li class="nav-item">
-            <a class="nav-link fw-bold text-dark" routerLink="/admin">Administración</a>
+            <a class="nav-link fw-bold text-dark" routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Administración</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link fw-bold text-dark" routerLink="/admin/whatsapp" routerLinkActive="active"><i class="bi bi-whatsapp"></i> Bot WhatsApp</a>
           </li>
         </ng-container>
       </ul>
