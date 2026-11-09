@@ -8,7 +8,10 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import com.polleria.pedidos.usuario.Usuario;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Endpoints del módulo de Pedidos.
@@ -53,6 +56,17 @@ public class PedidoController {
     @PatchMapping("/{id}/estado")
     public Pedido cambiarEstado(@PathVariable Long id, @Valid @RequestBody CambioEstadoRequest request) {
         return pedidoService.cambiarEstado(id, request.getNuevoEstado(), request.getObservacion());
+    }
+
+    /**
+     * POST /api/pedidos/{id}/cancelar — cancela un pedido (cliente cancela su propio pedido, o cajera/admin).
+     */
+    @PostMapping("/{id}/cancelar")
+    public Pedido cancelar(@PathVariable Long id,
+                           @AuthenticationPrincipal Usuario usuario,
+                           @RequestBody(required = false) Map<String, String> body) {
+        String motivo = (body != null) ? body.get("motivo") : null;
+        return pedidoService.cancelarPedido(id, usuario, motivo);
     }
 
     /** GET /api/pedidos/{id}/historial — historial de cambios de estado de un pedido (para seguimiento). */

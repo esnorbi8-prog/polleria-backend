@@ -10,6 +10,9 @@ import com.polleria.pedidos.pedido.exception.StockInsuficienteException;
 import com.polleria.pedidos.pedido.exception.TransicionEstadoInvalidaException;
 import com.polleria.pedidos.producto.Producto;
 import com.polleria.pedidos.producto.ProductoRepository;
+import com.polleria.pedidos.usuario.Rol;
+import com.polleria.pedidos.usuario.Usuario;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -146,6 +149,67 @@ public class PedidoService {
         publicarCambioEstado(actualizado, estadoActual, nuevoEstado, observacion);
 
         return actualizado;
+    }
+
+    /**
+     * Cancela un pedido solicitado por un cliente o personal del restaurante.
+     * Valida permisos de propiedad (si es cliente) y que el pedido no se encuentre
+     * en estados avanzados (LISTO, EN_CAMINO, ENTREGADO). Repone el stock y publica eventos.
+     */
+    @Transactional
+    public Pedido cancelarPedido(Long pedidoId, Usuario usuario, String motivo) {
+        Pedido pedido = buscarPorId(pedidoId);
+
+        if (pedido.getEstado() == EstadoPedido.CANCELADO) {
+            throw new TransicionEstadoInvalidaException("El pedido #" + pedidoId + " ya se encuentra cancelado.");
+        }
+
+        if (usuario != null && usuario.getRol() == Rol.CLIENTE) {
+            if (pedido.getCliente() == null || !usuario.getId().equals(pedido.getCliente().getUsuarioId())) {
+                throw new AccessDeniedException("No tienes permiso para cancelar este pedido.");
+            }
+
+            // Un cliente solo puede cancelar si está RECIBIDO, PAGADO o EN_PREPARACION
+            if (pedido.getEstado() != EstadoPedido.RECIBIDO &&
+                pedido.getEstado() != EstadoPedido.PAGADO &&
+                pedido.getEstado() != EstadoPedido.EN_PREPARACION) {
+                throw new TransicionEstadoInvalidaException(
+                    "No es posible cancelar el pedido #" + pedidoId + " porque ya está " +
+                    pedido.getEstado().name().toLowerCase() + ". Por favor comunícate con el restaurante.");
+            }
+        }
+
+        // Cocina solo cancela pedidos en cola (PAGADO) o en fuego (EN_PREPARACION)
+        if (usuario != null && usuario.getRol() == Rol.COCINERO) {
+            if (pedido.getEstado() != EstadoPedido.PAGADO && pedido.getEstado() != EstadoPedido.EN_PREPARACION) {
+                throw new TransicionEstadoInvalidaException(
+                    "Cocina solo puede cancelar pedidos en cola o en preparación.");
+            }
+        }
+
+        // Reparto solo cancela entregas listas para llevar (LISTO) o en camino (EN_CAMINO)
+        if (usuario != null && usuario.getRol() == Rol.REPARTIDOR) {
+            if (pedido.getEstado() != EstadoPedido.LISTO && pedido.getEstado() != EstadoPedido.EN_CAMINO) {
+                throw new TransicionEstadoInvalidaException(
+                    "Reparto solo puede cancelar entregas que estén listas para llevar o en camino.");
+            }
+        }
+
+        String defaultMotivo;
+        if (usuario != null) {
+            defaultMotivo = switch (usuario.getRol()) {
+                case CLIENTE -> "Cancelado por el cliente";
+                case COCINERO -> "Cancelado por cocina";
+                case REPARTIDOR -> "Cancelado por reparto";
+                default -> "Cancelado por el restaurante";
+            };
+        } else {
+            defaultMotivo = "Cancelado";
+        }
+
+        String observacion = (motivo != null && !motivo.isBlank()) ? motivo : defaultMotivo;
+
+        return cambiarEstado(pedidoId, EstadoPedido.CANCELADO, observacion);
     }
 
     private void reponerStock(Pedido pedido) {

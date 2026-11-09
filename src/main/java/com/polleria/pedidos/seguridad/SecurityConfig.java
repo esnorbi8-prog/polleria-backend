@@ -132,6 +132,10 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/api/pedidos/*/estado")
                         .hasAnyRole("COCINERO", "REPARTIDOR", "CAJERA", "ADMINISTRADOR")
 
+                        // Cancelar pedido: cliente, cocinero, repartidor, o caja/admin
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/pedidos/*/cancelar")
+                        .hasAnyRole("CLIENTE", "COCINERO", "REPARTIDOR", "CAJERA", "ADMINISTRADOR")
+
                         // GPS del repartidor (RF-D02): solo reparto/admin envían la posición;
                         // consultarla (GET) cae en la regla general de "estar logueado"
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/pedidos/*/ubicacion")

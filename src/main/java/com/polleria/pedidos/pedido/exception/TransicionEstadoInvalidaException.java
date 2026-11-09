@@ -8,4 +8,8 @@ public class TransicionEstadoInvalidaException extends RuntimeException {
     public TransicionEstadoInvalidaException(EstadoPedido actual, EstadoPedido destino) {
         super("No se puede pasar el pedido de estado %s a %s".formatted(actual, destino));
     }
+
+    public TransicionEstadoInvalidaException(String mensaje) {
+        super(mensaje);
+    }
 }
