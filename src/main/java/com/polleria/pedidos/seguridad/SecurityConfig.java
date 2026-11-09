@@ -125,6 +125,7 @@ public class SecurityConfig {
 
                         // Clientes: consulta/alta manual reservada a caja/admin, salvo /me que es del propio cliente
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/clientes/me").hasAnyRole("CLIENTE", "CAJERA", "ADMINISTRADOR")
+                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/clientes/me").hasAnyRole("CLIENTE", "CAJERA", "ADMINISTRADOR")
                         .requestMatchers("/api/clientes/**").hasAnyRole("CAJERA", "ADMINISTRADOR")
 
                         // Cambiar el estado de un pedido: cocina, reparto, caja o admin

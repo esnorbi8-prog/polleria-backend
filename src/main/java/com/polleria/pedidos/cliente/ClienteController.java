@@ -1,9 +1,12 @@
 package com.polleria.pedidos.cliente;
 
+import com.polleria.pedidos.cliente.dto.ActualizarPerfilClienteRequest;
 import com.polleria.pedidos.common.RecursoNoEncontradoException;
+import com.polleria.pedidos.usuario.Usuario;
+import com.polleria.pedidos.usuario.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,9 +16,11 @@ import java.util.List;
 public class ClienteController {
 
     private final ClienteRepository clienteRepository;
+    private final UsuarioService usuarioService;
 
-    public ClienteController(ClienteRepository clienteRepository) {
+    public ClienteController(ClienteRepository clienteRepository, UsuarioService usuarioService) {
         this.clienteRepository = clienteRepository;
+        this.usuarioService = usuarioService;
     }
 
     @GetMapping
@@ -24,11 +29,18 @@ public class ClienteController {
     }
 
     @GetMapping("/me")
-    public Cliente obtenerMiPerfil(@org.springframework.security.core.annotation.AuthenticationPrincipal com.polleria.pedidos.usuario.Usuario usuario) {
+    public Cliente obtenerMiPerfil(@AuthenticationPrincipal Usuario usuario) {
         return clienteRepository.findAll().stream()
                 .filter(c -> usuario.getId().equals(c.getUsuarioId()))
                 .findFirst()
                 .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró el perfil de cliente asociado a esta cuenta."));
+    }
+
+    @PutMapping("/me")
+    public Cliente actualizarMiPerfil(
+            @AuthenticationPrincipal Usuario usuario,
+            @RequestBody ActualizarPerfilClienteRequest request) {
+        return usuarioService.actualizarPerfilCliente(usuario.getId(), request);
     }
 
     @GetMapping("/{id}")

@@ -22,7 +22,7 @@ public class JwtService {
     @Value("${app.jwt.secret}")
     private String secret;
 
-    @Value("${app.jwt.expiration-ms}")
+    @Value("${app.jwt.expiration-ms:28800000}")
     private long expirationMs;
 
     private SecretKey key() {
@@ -32,11 +32,16 @@ public class JwtService {
     public String generarToken(String email, String rol, Long usuarioId) {
         Date ahora = new Date();
         
-        long duracion = expirationMs;
-        if ("ADMIN".equals(rol)) {
-            duracion = 10 * 60 * 1000; // 10 minutos
-        } else if ("COCINA".equals(rol)) {
-            duracion = 30 * 60 * 1000; // 30 minutos
+        // Tiempo de sesión:
+        // Personal (ADMINISTRADOR, COCINERO, REPARTIDOR, CAJERA): 8 horas de turno de trabajo.
+        // Clientes: 2 horas de sesión.
+        long duracion;
+        if ("ADMINISTRADOR".equalsIgnoreCase(rol) || "ADMIN".equalsIgnoreCase(rol) ||
+            "COCINERO".equalsIgnoreCase(rol) || "COCINA".equalsIgnoreCase(rol) ||
+            "REPARTIDOR".equalsIgnoreCase(rol) || "CAJERA".equalsIgnoreCase(rol)) {
+            duracion = 8L * 60 * 60 * 1000; // 8 horas
+        } else {
+            duracion = 2L * 60 * 60 * 1000; // 2 horas
         }
         
         Date expira = new Date(ahora.getTime() + duracion);

@@ -130,6 +130,45 @@ public class UsuarioService {
     }
 
     @Transactional
+    public Cliente actualizarPerfilCliente(Long usuarioId, com.polleria.pedidos.cliente.dto.ActualizarPerfilClienteRequest request) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new com.polleria.pedidos.common.RecursoNoEncontradoException("Usuario no encontrado: " + usuarioId));
+
+        if (request.getNombre() != null && !request.getNombre().trim().isEmpty()) {
+            usuario.setNombreCompleto(request.getNombre().trim());
+        }
+        if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
+            usuario.setPasswordHash(passwordEncoder.encode(request.getPassword().trim()));
+        }
+        usuarioRepository.save(usuario);
+
+        Cliente cliente = clienteRepository.findAll().stream()
+                .filter(c -> usuarioId.equals(c.getUsuarioId()))
+                .findFirst()
+                .orElseGet(() -> {
+                    Cliente nuevo = new Cliente(
+                            usuario.getNombreCompleto(),
+                            request.getTelefono() != null ? request.getTelefono().trim() : "",
+                            usuario.getEmail(),
+                            request.getDireccion() != null ? request.getDireccion().trim() : ""
+                    );
+                    nuevo.setUsuarioId(usuarioId);
+                    return nuevo;
+                });
+
+        if (request.getNombre() != null && !request.getNombre().trim().isEmpty()) {
+            cliente.setNombre(request.getNombre().trim());
+        }
+        if (request.getTelefono() != null && !request.getTelefono().trim().isEmpty()) {
+            cliente.setTelefono(request.getTelefono().trim());
+        }
+        if (request.getDireccion() != null) {
+            cliente.setDireccion(request.getDireccion().trim());
+        }
+        return clienteRepository.save(cliente);
+    }
+
+    @Transactional
     public void eliminarUsuario(Long usuarioId) {
         if (!usuarioRepository.existsById(usuarioId)) {
             throw new com.polleria.pedidos.common.RecursoNoEncontradoException("Usuario no encontrado: " + usuarioId);
