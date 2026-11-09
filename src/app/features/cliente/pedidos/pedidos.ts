@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, ChangeDetectorRef } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { PedidoService, Pedido } from '../../../core/services/pedido.service';
@@ -23,7 +24,7 @@ const INTERVALO_SEGUIMIENTO_MS = 5000;
 @Component({
   selector: 'app-pedidos',
   standalone: true,
-  imports: [CommonModule, RouterLink, DatePipe],
+  imports: [CommonModule, RouterLink, DatePipe, FormsModule],
   templateUrl: './pedidos.html',
   styleUrl: './pedidos.css'
 })
@@ -31,11 +32,18 @@ export class Pedidos implements OnInit, OnDestroy {
   private pedidoService = inject(PedidoService);
   private clienteService = inject(ClienteService);
   private ubicacionService = inject(UbicacionService);
+  private cdr = inject(ChangeDetectorRef);
 
   misPedidos = signal<Pedido[]>([]);
   cargando = signal<boolean>(true);
   errorMsg = signal<string>('');
   procesandoPagoId = signal<number | null>(null);
+
+  // Estados de cancelación de pedido
+  cancelandoId = signal<number | null>(null);
+  pedidoACancelar = signal<Pedido | null>(null);
+  motivoCancelacion = '';
+  errorCancelacion = signal<string>('');
 
   /** Última posición del repartidor por id de pedido (solo pedidos EN_CAMINO). */
   ubicaciones = signal<Record<number, UbicacionRepartidor>>({});
@@ -81,19 +89,22 @@ export class Pedidos implements OnInit, OnDestroy {
               this.errorMsg.set('Ocurrió un problema al procesar los datos de tus pedidos.');
             } finally {
               this.cargando.set(false);
+              this.cdr.detectChanges();
               setTimeout(() => this.actualizarSeguimiento());
             }
           },
           error: (err) => {
             console.error('Error obteniendo pedidos:', err);
-            this.errorMsg.set('No se pudieron cargar los pedidos. ¿Reinicio el backend?');
+            this.errorMsg.set('No se pudieron cargar los pedidos.');
+            this.cdr.detectChanges();
             this.cargando.set(false);
           }
         });
       },
       error: (err) => {
         console.error('Error obteniendo perfil:', err);
-        this.errorMsg.set('No se pudo verificar tu identidad de cliente. ¿Reiniciaste el backend después del último cambio?');
+        this.errorMsg.set('No se pudo verificar tu identidad de cliente.');
+        this.cdr.detectChanges();
         this.cargando.set(false);
       }
     });
@@ -124,6 +135,51 @@ export class Pedidos implements OnInit, OnDestroy {
       error: (err) => {
         alert('Error en demo: ' + (err.error?.mensaje || err.message));
         this.procesandoPagoId.set(null);
+      }
+    });
+  }
+
+  puedeCancelar(estado: string): boolean {
+    return estado === 'RECIBIDO' || estado === 'PAGADO' || estado === 'EN_PREPARACION';
+  }
+
+  abrirModalCancelar(pedido: Pedido) {
+    this.pedidoACancelar.set(pedido);
+    this.motivoCancelacion = '';
+    this.errorCancelacion.set('');
+    this.cdr.detectChanges();
+  }
+
+  cerrarModalCancelar() {
+    if (this.cancelandoId() !== null) return;
+    this.pedidoACancelar.set(null);
+    this.motivoCancelacion = '';
+    this.errorCancelacion.set('');
+    this.cdr.detectChanges();
+  }
+
+  confirmarCancelacion() {
+    const pedido = this.pedidoACancelar();
+    if (!pedido) return;
+
+    this.cancelandoId.set(pedido.id);
+    this.errorCancelacion.set('');
+    this.cdr.detectChanges();
+
+    this.pedidoService.cancelarPedido(pedido.id, this.motivoCancelacion.trim()).subscribe({
+      next: () => {
+        this.cancelandoId.set(null);
+        this.pedidoACancelar.set(null);
+        this.motivoCancelacion = '';
+        this.cargarMisPedidos();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error al cancelar pedido:', err);
+        const msg = err.error?.mensaje || 'No se pudo cancelar el pedido. Intenta nuevamente.';
+        this.errorCancelacion.set(msg);
+        this.cancelandoId.set(null);
+        this.cdr.detectChanges();
       }
     });
   }

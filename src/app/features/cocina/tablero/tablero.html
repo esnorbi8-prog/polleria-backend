@@ -44,9 +44,16 @@
                 </li>
               </ul>
               
-              <button class="btn btn-danger w-100 fw-bold py-2" (click)="marcarEnPreparacion(p.id)">
-                <i class="bi bi-fire"></i> Empezar a Preparar
-              </button>
+              <div class="d-flex gap-2">
+                <button class="btn btn-danger flex-grow-1 fw-bold py-2" (click)="marcarEnPreparacion(p.id)">
+                  <i class="bi bi-fire"></i> Empezar a Preparar
+                </button>
+                <button class="btn btn-outline-danger btn-sm px-3 fw-bold" 
+                        title="Cancelar comanda"
+                        (click)="abrirModalCancelar(p)">
+                  <i class="bi bi-x-circle"></i> Cancelar
+                </button>
+              </div>
             </div>
           </div>
           
@@ -82,9 +89,16 @@
                 </li>
               </ul>
               
-              <button class="btn btn-warning w-100 fw-bold py-2 shadow-sm" (click)="marcarListo(p.id)">
-                <i class="bi bi-check2-circle fs-5"></i> Marcar como ¡LISTO!
-              </button>
+              <div class="d-flex gap-2">
+                <button class="btn btn-warning flex-grow-1 fw-bold py-2 shadow-sm" (click)="marcarListo(p.id)">
+                  <i class="bi bi-check2-circle fs-5"></i> Marcar como ¡LISTO!
+                </button>
+                <button class="btn btn-outline-danger btn-sm px-3 fw-bold" 
+                        title="Cancelar comanda"
+                        (click)="abrirModalCancelar(p)">
+                  <i class="bi bi-x-circle"></i> Cancelar
+                </button>
+              </div>
             </div>
           </div>
 
@@ -92,5 +106,59 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- Modal Confirmar Cancelación de Comanda en Cocina -->
+  <div class="custom-modal-overlay" *ngIf="pedidoACancelar()">
+    <div class="custom-modal-content text-start p-4" style="max-width: 480px;">
+      
+      <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+        <h5 class="fw-bold mb-0 text-dark d-flex align-items-center gap-2">
+          <i class="bi bi-exclamation-triangle-fill text-danger fs-4"></i> Cancelar Comanda #{{ pedidoACancelar()?.id }}
+        </h5>
+        <button type="button" class="btn-close shadow-none" (click)="cerrarModalCancelar()" [disabled]="cancelandoId() !== null"></button>
+      </div>
+
+      <div *ngIf="errorCancelacion()" class="alert alert-danger py-2 small fw-bold d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-exclamation-circle-fill fs-5"></i> {{ errorCancelacion() }}
+      </div>
+
+      <p class="text-secondary small mb-3">
+        ¿Confirmas la cancelación de la orden #{{ pedidoACancelar()?.id }} desde cocina? Se repondrá el stock y se notificará al cliente y a administración.
+      </p>
+
+      <div class="mb-3">
+        <label class="form-label small fw-bold text-dark mb-1">Motivo de cocina:</label>
+        <select class="form-select form-select-sm mb-2" [(ngModel)]="motivoCancelacion">
+          <option value="">Selecciona un motivo frecuente...</option>
+          <option value="Falta de insumos / producto agotado">Falta de insumos / producto agotado</option>
+          <option value="Platillo quemado / retraso severo">Platillo quemado / retraso severo</option>
+          <option value="Falla o avería técnica en cocina">Falla o avería técnica en cocina</option>
+          <option value="Comanda duplicada o error de digitación">Comanda duplicada o error de digitación</option>
+        </select>
+        <input type="text" 
+               class="form-control form-control-sm" 
+               placeholder="O describe el incidente ocurrido..."
+               [(ngModel)]="motivoCancelacion" />
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+        <button type="button" 
+                class="btn btn-light btn-sm fw-bold border px-3" 
+                (click)="cerrarModalCancelar()" 
+                [disabled]="cancelandoId() !== null">
+          Volver a cocina
+        </button>
+        <button type="button" 
+                class="btn btn-danger btn-sm fw-bold px-4 d-flex align-items-center gap-2" 
+                (click)="confirmarCancelacion()" 
+                [disabled]="cancelandoId() !== null">
+          <span *ngIf="cancelandoId() !== null" class="spinner-border spinner-border-sm" role="status"></span>
+          <i *ngIf="cancelandoId() === null" class="bi bi-x-circle-fill"></i>
+          <span>{{ cancelandoId() !== null ? 'Cancelando...' : 'Sí, Cancelar Comanda' }}</span>
+        </button>
+      </div>
+
+    </div>
   </div>
 </div>

@@ -56,4 +56,8 @@ export class PedidoService {
   cambiarEstado(pedidoId: number, nuevoEstado: string, observacion: string = ''): Observable<Pedido> {
     return this.http.patch<Pedido>(`${this.apiUrl}/${pedidoId}/estado`, { nuevoEstado, observacion });
   }
+
+  cancelarPedido(pedidoId: number, motivo: string = ''): Observable<Pedido> {
+    return this.http.post<Pedido>(`${this.apiUrl}/${pedidoId}/cancelar`, { motivo });
+  }
 }

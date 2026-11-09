@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, signal, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { PedidoService, Pedido } from '../../../core/services/pedido.service';
 import { UbicacionService } from '../../../core/services/ubicacion.service';
@@ -22,13 +23,20 @@ const INTERVALO_ENVIO_MS = 5000;
 @Component({
   selector: 'app-reparto-tablero',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './tablero.html',
   styleUrl: './tablero.css'
 })
 export class RepartoTablero implements OnInit, OnDestroy {
   private pedidoService = inject(PedidoService);
   private ubicacionService = inject(UbicacionService);
+  private cdr = inject(ChangeDetectorRef);
+
+  // Cancelación de entrega en reparto
+  cancelandoId = signal<number | null>(null);
+  pedidoACancelar = signal<Pedido | null>(null);
+  motivoCancelacion = '';
+  errorCancelacion = signal<string>('');
 
   pedidosListos = signal<Pedido[]>([]);
   pedidosEnCamino = signal<Pedido[]>([]);
@@ -127,6 +135,49 @@ export class RepartoTablero implements OnInit, OnDestroy {
     this.pedidoService.cambiarEstado(pedidoId, 'ENTREGADO', 'El pedido fue entregado al cliente con éxito').subscribe({
       next: () => this.cargarTablero(false),
       error: () => alert('Error al actualizar a Entregado')
+    });
+  }
+
+  abrirModalCancelar(pedido: Pedido) {
+    this.pedidoACancelar.set(pedido);
+    this.motivoCancelacion = '';
+    this.errorCancelacion.set('');
+    this.cdr.detectChanges();
+  }
+
+  cerrarModalCancelar() {
+    if (this.cancelandoId() !== null) return;
+    this.pedidoACancelar.set(null);
+    this.motivoCancelacion = '';
+    this.errorCancelacion.set('');
+    this.cdr.detectChanges();
+  }
+
+  confirmarCancelacion() {
+    const pedido = this.pedidoACancelar();
+    if (!pedido) return;
+
+    this.cancelandoId.set(pedido.id);
+    this.errorCancelacion.set('');
+    this.cdr.detectChanges();
+
+    const motivo = this.motivoCancelacion.trim() || 'Cancelado por repartidor (incidente en entrega)';
+
+    this.pedidoService.cancelarPedido(pedido.id, motivo).subscribe({
+      next: () => {
+        this.cancelandoId.set(null);
+        this.pedidoACancelar.set(null);
+        this.motivoCancelacion = '';
+        this.cargarTablero(false);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error al cancelar entrega desde reparto:', err);
+        const msg = err.error?.mensaje || 'No se pudo cancelar el pedido. Intenta nuevamente.';
+        this.errorCancelacion.set(msg);
+        this.cancelandoId.set(null);
+        this.cdr.detectChanges();
+      }
     });
   }
 
