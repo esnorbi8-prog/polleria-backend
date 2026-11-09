@@ -12,6 +12,13 @@ export interface Cliente {
   usuarioId: number;
 }
 
+export interface ActualizarPerfilDTO {
+  nombre?: string;
+  telefono?: string;
+  direccion?: string;
+  password?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -21,5 +28,9 @@ export class ClienteService {
 
   getMiPerfil(): Observable<Cliente> {
     return this.http.get<Cliente>(`${this.apiUrl}/me`);
+  }
+
+  actualizarMiPerfil(datos: ActualizarPerfilDTO): Observable<Cliente> {
+    return this.http.put<Cliente>(`${this.apiUrl}/me`, datos);
   }
 }

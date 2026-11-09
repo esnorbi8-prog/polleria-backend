@@ -1,0 +1,135 @@
+/* ==========================================================================
+   ESTILOS DEL MENÚ Y CHECKOUT - CLIENTE (HOME)
+   ========================================================================== */
+
+.page-header-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--pollos-red);
+  letter-spacing: -0.02em;
+}
+
+.product-card {
+  border: 1px solid var(--pollos-border);
+  border-radius: var(--pollos-radius-lg);
+  background: var(--pollos-surface);
+  box-shadow: var(--pollos-shadow-sm);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--pollos-shadow-hover);
+  border-color: rgba(200, 29, 37, 0.25);
+}
+
+.product-image-container {
+  position: relative;
+  width: 100%;
+  height: 190px;
+  background-color: var(--pollos-surface-subtle);
+  overflow: hidden;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.05);
+}
+
+.product-price-badge {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(28, 25, 23, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #FFFFFF;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--pollos-radius-pill);
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.product-stock-tag {
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* Panel del Carrito */
+.cart-card {
+  border: 1px solid var(--pollos-border);
+  border-radius: var(--pollos-radius-lg);
+  background: var(--pollos-surface);
+  box-shadow: var(--pollos-shadow-md);
+  overflow: hidden;
+}
+
+.cart-header {
+  background: var(--pollos-surface);
+  border-bottom: 1px solid var(--pollos-border);
+  padding: 1.1rem 1.4rem;
+}
+
+.cart-item {
+  border-bottom: 1px solid var(--pollos-border-subtle);
+  padding: 0.85rem 0;
+}
+
+.cart-item:last-child {
+  border-bottom: none;
+}
+
+.cart-total-box {
+  background: var(--pollos-surface-subtle);
+  border-radius: var(--pollos-radius-md);
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--pollos-border);
+}
+
+/* Delivery Type Selector */
+.delivery-toggle-container {
+  display: flex;
+  background: var(--pollos-surface-subtle);
+  border-radius: var(--pollos-radius-pill);
+  padding: 4px;
+  border: 1px solid var(--pollos-border);
+  gap: 4px;
+}
+
+.delivery-toggle-label {
+  flex: 1;
+  text-align: center;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: var(--pollos-radius-pill);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--pollos-text-secondary);
+  user-select: none;
+}
+
+.delivery-toggle-input:checked + .delivery-toggle-label {
+  background: #FFFFFF;
+  color: var(--pollos-red);
+  box-shadow: var(--pollos-shadow-xs);
+  font-weight: 700;
+}
+
+.delivery-toggle-input {
+  display: none;
+}

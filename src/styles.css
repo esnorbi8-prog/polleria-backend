@@ -1,94 +1,404 @@
-/* Tema "Los Pollos Hermanos" */
-:root {
-  /* Variables de colores principales */
-  --pollos-yellow: #ffcc00;
-  --pollos-yellow-hover: #e6b800;
-  --pollos-red: #e31837;
-  --pollos-red-hover: #c4152f;
-  --pollos-white: #ffffff;
-  --pollos-dark: #2a2a2a;
+/* ==========================================================================
+   SISTEMA DE DISEÑO - LOS POLLOS HERMANOS (UI/UX 2.0)
+   Filosofía: Limpieza, Calidez Gourmet, Alta Legibilidad y Ergonomía
+   ========================================================================== */
 
-  /* Overrides de variables de Bootstrap 5 */
-  --bs-primary: var(--pollos-yellow);
-  --bs-secondary: var(--pollos-red);
+:root {
+  /* --- Paleta Cromática Primaria (60-30-10) --- */
+  --pollos-bg: #FAF8F5;              /* Fondo dominante cálido y limpio */
+  --pollos-surface: #FFFFFF;         /* Superficie de tarjetas y modales */
+  --pollos-surface-subtle: #F5F2EB;  /* Fondos alternados o secundarios */
+  --pollos-surface-hover: #F0EBE1;   /* Hover en listas/filas */
+
+  /* Colores de Marca y Estructura (30%) */
+  --pollos-red: #C81D25;             /* Rojo artesanal apetitoso */
+  --pollos-red-hover: #A7141B;       /* Rojo presionado / hover */
+  --pollos-red-light: #FEE2E2;       /* Fondo suave para badges/alertas */
+  --pollos-red-text: #991B1B;        /* Texto de alta legibilidad sobre fondo claro */
+
+  /* Colores de Acento y Conversión (10%) */
+  --pollos-gold: #F59E0B;            /* Dorado miel gourmet */
+  --pollos-gold-hover: #D97706;      /* Dorado hover */
+  --pollos-gold-light: #FEF3C7;      /* Acentos sutiles */
+  --pollos-gold-text: #92400E;
+
+  /* Estados Funcionales */
+  --pollos-success: #10B981;         /* Verde esmeralda (WhatsApp / Entregado) */
+  --pollos-success-light: #D1FAE5;
+  --pollos-success-text: #065F46;
+
+  --pollos-info: #0284C7;            /* Azul (En camino / Info) */
+  --pollos-info-light: #E0F2FE;
+  --pollos-info-text: #075985;
+
+  --pollos-warning: #F59E0B;         /* En preparación */
+  --pollos-warning-light: #FEF3C7;
+  --pollos-warning-text: #B45309;
+
+  /* Tipografía y Neutros */
+  --pollos-text-primary: #1C1917;    /* Stone 900 - Contraste óptimo */
+  --pollos-text-secondary: #57534E;  /* Stone 600 - Textos descriptivos */
+  --pollos-text-muted: #A8A29E;      /* Stone 400 - Metadatos */
+  --pollos-border: #E7E5E4;          /* Stone 200 - Bordes limpios */
+  --pollos-border-subtle: #F5F5F4;   /* Stone 100 */
+
+  /* Sombras Modernas y Elevaciones */
+  --pollos-shadow-xs: 0 1px 2px rgba(28, 25, 23, 0.04);
+  --pollos-shadow-sm: 0 2px 4px rgba(28, 25, 23, 0.05);
+  --pollos-shadow-md: 0 6px 16px -2px rgba(28, 25, 23, 0.07), 0 2px 4px -1px rgba(28, 25, 23, 0.04);
+  --pollos-shadow-lg: 0 12px 30px -4px rgba(28, 25, 23, 0.1), 0 4px 8px -2px rgba(28, 25, 23, 0.05);
+  --pollos-shadow-hover: 0 14px 34px -4px rgba(200, 29, 37, 0.15), 0 4px 10px -2px rgba(28, 25, 23, 0.06);
+
+  /* Radios de Curvatura */
+  --pollos-radius-sm: 8px;
+  --pollos-radius-md: 14px;
+  --pollos-radius-lg: 20px;
+  --pollos-radius-pill: 9999px;
+
+  /* Compatibilidad con Bootstrap */
+  --bs-primary: var(--pollos-red);
+  --bs-secondary: var(--pollos-gold);
+  --bs-body-bg: var(--pollos-bg);
+  --bs-body-color: var(--pollos-text-primary);
+  --bs-font-sans-serif: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
+  /* Aliases para compatibilidad con código existente */
+  --pollos-yellow: var(--pollos-gold);
+  --pollos-yellow-hover: var(--pollos-gold-hover);
+  --pollos-white: #ffffff;
+  --pollos-dark: #1C1917;
+}
+
+/* ==========================================================================
+   RESET & BASE GLOBAL
+   ========================================================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
 body {
-  background: linear-gradient(135deg, #fdfbf7 0%, #e3dbca 100%);
+  background-color: var(--pollos-bg);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.04) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(200, 29, 37, 0.03) 0px, transparent 50%);
   background-attachment: fixed;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--pollos-text-primary);
   min-height: 100vh;
   margin: 0;
-  position: relative;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Marca de agua sutil en fondo sin interrumpir la vista */
 body::after {
   content: "";
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 600px;
-  height: 600px;
+  width: 520px;
+  height: 520px;
   background-image: url('/img/logo.png');
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
-  opacity: 0.04;
+  opacity: 0.025;
   z-index: 0;
   pointer-events: none;
 }
 
-/* Utilidades */
-.bg-pollos-yellow { background-color: var(--pollos-yellow) !important; color: #8b0000 !important; }
-.bg-pollos-red { background-color: var(--pollos-red) !important; color: white !important; }
-.text-pollos-yellow { color: var(--pollos-yellow) !important; }
-.text-pollos-red { color: var(--pollos-red) !important; }
-
-.drop-shadow {
-  filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.2));
+/* Tipografía de Encabezados */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--pollos-text-primary);
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-/* Botones hermosos */
+/* ==========================================================================
+   BOTONES E INTERACCIONES (ERGONOMÍA Y MICROINTERACCIONES)
+   ========================================================================== */
 .btn-pollos-red {
-  background: linear-gradient(to bottom, #f23c57, var(--pollos-red));
-  color: white;
-  border: 1px solid #b3122b;
-  box-shadow: 0 4px 6px rgba(227, 24, 55, 0.3);
-  transition: all 0.2s ease-in-out;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #D3252E 0%, var(--pollos-red) 100%);
+  color: #FFFFFF !important;
+  border: 1px solid rgba(167, 20, 27, 0.8);
+  border-radius: var(--pollos-radius-pill);
+  font-weight: 600;
+  font-size: 0.925rem;
+  letter-spacing: 0.01em;
+  padding: 0.65rem 1.4rem;
+  box-shadow: 0 4px 14px rgba(200, 29, 37, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .btn-pollos-red:hover {
-  background: linear-gradient(to bottom, #d61f3a, #b3122b);
-  box-shadow: 0 6px 12px rgba(227, 24, 55, 0.5);
+  background: linear-gradient(135deg, var(--pollos-red) 0%, #A7141B 100%);
+  color: #FFFFFF !important;
   transform: translateY(-2px);
-  color: white;
+  box-shadow: 0 6px 20px rgba(200, 29, 37, 0.35);
+}
+
+.btn-pollos-red:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(200, 29, 37, 0.2);
 }
 
 .btn-pollos-red:disabled {
-  background: #f28b9a;
-  box-shadow: none;
-  transform: none;
-  border-color: #f28b9a;
+  background: #E5E7EB !important;
+  color: #9CA3AF !important;
+  border-color: #E5E7EB !important;
+  box-shadow: none !important;
+  transform: none !important;
+  cursor: not-allowed;
 }
 
-/* Tarjetas */
+.btn-pollos-gold {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  color: #FFFFFF !important;
+  border: 1px solid rgba(217, 119, 6, 0.8);
+  border-radius: var(--pollos-radius-pill);
+  font-weight: 600;
+  font-size: 0.925rem;
+  padding: 0.65rem 1.4rem;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-pollos-gold:hover {
+  background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
+  color: #FFFFFF !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35);
+}
+
+.btn-pollos-outline {
+  background: #FFFFFF;
+  color: var(--pollos-text-primary);
+  border: 1.5px solid var(--pollos-border);
+  border-radius: var(--pollos-radius-pill);
+  font-weight: 600;
+  font-size: 0.925rem;
+  padding: 0.6rem 1.3rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-pollos-outline:hover {
+  background: var(--pollos-surface-hover);
+  border-color: var(--pollos-text-secondary);
+  color: var(--pollos-text-primary);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   TARJETAS Y CONTENEDORES (SURFACES & ELEVATION)
+   ========================================================================== */
 .pollos-card {
-  border: none;
-  border-radius: 1rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  background: var(--pollos-surface);
+  border: 1px solid var(--pollos-border);
+  border-radius: var(--pollos-radius-lg);
+  box-shadow: var(--pollos-shadow-md);
   overflow: hidden;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+
+.pollos-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--pollos-shadow-hover);
+  border-color: rgba(200, 29, 37, 0.2);
 }
 
 .pollos-card-header {
-  background: var(--pollos-yellow);
-  color: #8b0000;
-  text-transform: uppercase;
-  font-weight: 800;
-  letter-spacing: 1px;
-  padding: 1.5rem;
-  border-bottom: 3px solid var(--pollos-red);
+  background: var(--pollos-surface);
+  color: var(--pollos-text-primary);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--pollos-border);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* ==========================================================================
+   BADGES & PILLS DE ESTADO (SEMÁFORO DE PEDIDOS)
+   ========================================================================== */
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--pollos-radius-pill);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.badge-status::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.badge-status-pendiente {
+  background-color: var(--pollos-gold-light);
+  color: var(--pollos-gold-text);
+}
+.badge-status-pendiente::before { background-color: var(--pollos-gold); }
+
+.badge-status-cocina {
+  background-color: #FEF3C7;
+  color: #B45309;
+}
+.badge-status-cocina::before { background-color: #F59E0B; }
+
+.badge-status-camino {
+  background-color: var(--pollos-info-light);
+  color: var(--pollos-info-text);
+}
+.badge-status-camino::before { background-color: var(--pollos-info); }
+
+.badge-status-entregado {
+  background-color: var(--pollos-success-light);
+  color: var(--pollos-success-text);
+}
+.badge-status-entregado::before { background-color: var(--pollos-success); }
+
+.badge-status-cancelado {
+  background-color: var(--pollos-red-light);
+  color: var(--pollos-red-text);
+}
+.badge-status-cancelado::before { background-color: var(--pollos-red); }
+
+/* ==========================================================================
+   INPUTS & FORMULARIOS (FOCUS STATES SUAVES)
+   ========================================================================== */
+.form-control, .form-select {
+  border: 1.5px solid var(--pollos-border);
+  border-radius: var(--pollos-radius-md);
+  padding: 0.65rem 0.95rem;
+  font-size: 0.95rem;
+  color: var(--pollos-text-primary);
+  background-color: #FFFFFF;
+  transition: all 0.15s ease-in-out;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--pollos-red);
+  box-shadow: 0 0 0 3px rgba(200, 29, 37, 0.12);
+  outline: none;
+}
+
+.form-label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--pollos-text-secondary);
+  margin-bottom: 0.35rem;
+}
+
+/* ==========================================================================
+   MODALES PERSONALIZADOS (OVERLAYS ELEGANTES)
+   ========================================================================== */
+.custom-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 25, 23, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.custom-modal-content {
+  background: #FFFFFF;
+  border-radius: var(--pollos-radius-lg);
+  padding: 2.25rem 2rem;
+  max-width: 460px;
+  width: 100%;
+  box-shadow: var(--pollos-shadow-lg);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  animation: scaleUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.icon-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.icon-circle.success {
+  background-color: var(--pollos-success-light);
+  color: var(--pollos-success);
+}
+
+.icon-circle.danger {
+  background-color: var(--pollos-red-light);
+  color: var(--pollos-red);
+}
+
+.icon-circle.warning {
+  background-color: var(--pollos-gold-light);
+  color: var(--pollos-gold);
+}
+
+/* ==========================================================================
+   UTILIDADES & CLASES COMPATIBLES
+   ========================================================================== */
+.bg-pollos-yellow { background-color: var(--pollos-gold) !important; color: #FFFFFF !important; }
+.bg-pollos-red { background-color: var(--pollos-red) !important; color: #FFFFFF !important; }
+.text-pollos-yellow { color: var(--pollos-gold) !important; }
+.text-pollos-red { color: var(--pollos-red) !important; }
+
+.drop-shadow {
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.08));
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Scrollbar estilizada */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--pollos-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: #D6D3D1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #A8A29E;
 }

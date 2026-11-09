@@ -1,91 +1,134 @@
-<div class="container mt-4">
+<div class="container py-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold" style="color: #8b0000;"><i class="bi bi-clock-history text-pollos-red"></i> Mis Pedidos</h2>
-    <a routerLink="/cliente/home" class="btn btn-outline-dark fw-bold">Nuevo Pedido</a>
+    <div>
+      <h2 class="page-title mb-1">
+        <i class="bi bi-clock-history me-2"></i> Mis Pedidos
+      </h2>
+      <p class="text-muted small mb-0">Historial de órdenes y seguimiento satelital de tu entrega en vivo.</p>
+    </div>
+    <a routerLink="/cliente/home" class="btn btn-pollos-red">
+      <i class="bi bi-plus-circle me-1"></i> Nuevo Pedido
+    </a>
   </div>
 
+  <!-- Estado de Carga -->
   <div *ngIf="cargando()" class="text-center py-5">
-    <div class="spinner-border text-pollos-red" role="status"></div>
-    <p class="mt-2 text-muted fw-bold">Buscando tus pedidos...</p>
+    <div class="spinner-border text-pollos-red mb-3" style="width: 2.5rem; height: 2.5rem;" role="status"></div>
+    <p class="text-muted fw-bold">Buscando tus pedidos...</p>
   </div>
 
   <div *ngIf="errorMsg()" class="alert alert-danger fw-bold shadow-sm">
-    <i class="bi bi-exclamation-triangle"></i> {{ errorMsg() }}
+    <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ errorMsg() }}
   </div>
 
-  <div *ngIf="!cargando() && !errorMsg() && misPedidos().length === 0" class="card pollos-card py-5 text-center">
-    <i class="bi bi-receipt display-1 text-muted opacity-25 mb-3"></i>
-    <h4 class="fw-bold text-dark">Aún no tienes pedidos</h4>
-    <p class="text-muted">Anímate a probar nuestros deliciosos pollos a la brasa.</p>
+  <!-- Sin Pedidos -->
+  <div *ngIf="!cargando() && !errorMsg() && misPedidos().length === 0" class="pollos-card py-5 text-center">
+    <div class="mb-3">
+      <i class="bi bi-receipt text-muted opacity-25" style="font-size: 3.5rem;"></i>
+    </div>
+    <h4 class="fw-bold text-dark mb-1">Aún no tienes pedidos registrados</h4>
+    <p class="text-muted small mb-4">Anímate a probar nuestros deliciosos pollos a la brasa con papas crocantes.</p>
     <div>
-      <a routerLink="/cliente/home" class="btn btn-pollos-red px-4 py-2 fw-bold rounded-pill">Ver el menú</a>
+      <a routerLink="/cliente/home" class="btn btn-pollos-red px-4 py-2">
+        <i class="bi bi-grid me-1"></i> Explorar la Carta
+      </a>
     </div>
   </div>
 
-  <div class="row" *ngIf="!cargando() && !errorMsg() && misPedidos().length > 0">
-    <div class="col-12 mb-4" *ngFor="let pedido of misPedidos()">
-      <div class="card pollos-card">
-        <div class="card-header bg-white border-bottom py-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
-          <div>
-            <h5 class="mb-0 fw-bold text-dark">Pedido #{{ pedido.id }}</h5>
-            <small class="text-muted">{{ pedido.fechaCreacion | date:'medium' }}</small>
+  <!-- Lista de Pedidos -->
+  <div class="row g-4" *ngIf="!cargando() && !errorMsg() && misPedidos().length > 0">
+    <div class="col-12" *ngFor="let pedido of misPedidos()">
+      <div class="order-card">
+        
+        <!-- Cabecera del Pedido -->
+        <div class="order-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+          <div class="d-flex align-items-center gap-3">
+            <div class="icon-circle success m-0" style="width: 44px; height: 44px;">
+              <i class="bi bi-bag-check-fill fs-5"></i>
+            </div>
+            <div>
+              <h5 class="mb-0 fw-bold text-dark">Orden #{{ pedido.id }}</h5>
+              <small class="text-muted">{{ pedido.fechaCreacion | date:'medium' }}</small>
+            </div>
           </div>
-          <span class="badge fs-6 px-3 py-2 rounded-pill shadow-sm" [ngClass]="getEstadoClase(pedido.estado)">
-            {{ getEstadoLabel(pedido.estado) }}
-          </span>
+          <div>
+            <span class="fs-6 px-3 py-1 shadow-none" [ngClass]="getEstadoClase(pedido.estado)">
+              {{ getEstadoLabel(pedido.estado) }}
+            </span>
+          </div>
         </div>
         
-        <div class="card-body p-4">
-          <div class="row">
-            <div class="col-md-7 mb-3 mb-md-0">
-              <h6 class="fw-bold text-pollos-red mb-3 border-bottom pb-2">Detalle de Productos</h6>
+        <!-- Cuerpo del Pedido -->
+        <div class="p-3 p-md-4">
+          <div class="row g-4">
+            
+            <!-- Productos -->
+            <div class="col-md-7">
+              <h6 class="fw-bold text-dark mb-3 border-bottom pb-2">
+                <i class="bi bi-list-check text-pollos-red me-1"></i> Detalle de Platillos
+              </h6>
               <ul class="list-unstyled mb-0">
-                <li class="d-flex justify-content-between mb-2" *ngFor="let item of pedido.items">
-                  <span class="text-dark fw-semibold">
+                <li class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom border-light" *ngFor="let item of pedido.items">
+                  <span class="text-dark fw-semibold small">
                     <span class="badge bg-light text-dark border me-2">{{ item.cantidad }}x</span> 
                     {{ item.producto.nombre }}
                   </span>
-                  <span class="text-muted">S/ {{ item.precioUnitario * item.cantidad }}</span>
+                  <span class="fw-bold text-secondary small">S/ {{ item.precioUnitario * item.cantidad }}</span>
                 </li>
               </ul>
             </div>
             
+            <!-- Resumen y Pagos -->
             <div class="col-md-5">
-              <div class="bg-light p-3 rounded-3 h-100 d-flex flex-column justify-content-center">
+              <div class="order-summary-box h-100 d-flex flex-column justify-content-center">
                 <div class="d-flex justify-content-between mb-2">
-                  <span class="text-muted fw-semibold">Tipo Entrega:</span>
-                  <span class="fw-bold text-dark">{{ pedido.tipoEntrega }}</span>
+                  <span class="text-muted fw-semibold small">Modalidad:</span>
+                  <span class="fw-bold text-dark small">
+                    <i class="bi" [ngClass]="pedido.tipoEntrega === 'DELIVERY' ? 'bi-bicycle text-primary' : 'bi-shop text-warning'"></i>
+                    {{ pedido.tipoEntrega }}
+                  </span>
                 </div>
                 <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
-                  <span class="text-muted fw-semibold">Total Pagado:</span>
-                  <span class="fw-bold fs-5 text-pollos-red">S/ {{ pedido.total }}</span>
+                  <span class="text-muted fw-semibold">Total a Pagar:</span>
+                  <span class="fw-bold fs-4 text-pollos-red">S/ {{ pedido.total }}</span>
                 </div>
 
                 <!-- Botones de Acción (Pago) -->
                 <div *ngIf="pedido.estado === 'RECIBIDO'" class="d-flex flex-column gap-2 mt-2">
-                  <button class="btn btn-primary fw-bold" style="background-color: #009ee3; border: none;"
+                  <button class="btn btn-mp w-100"
                           (click)="pagarMercadoPago(pedido.id)" [disabled]="procesandoPagoId() === pedido.id">
-                    <i class="bi bi-credit-card"></i> Pagar con Mercado Pago
+                    <i class="bi bi-credit-card me-1"></i> Pagar con Mercado Pago
                   </button>
-                  <button class="btn btn-outline-success fw-bold"
+                  <button class="btn btn-demo-pay w-100"
                           (click)="simularPagoExitoso(pedido.id)" [disabled]="procesandoPagoId() === pedido.id">
-                    <i class="bi bi-magic"></i> Confirmar Pago (Demo)
+                    <i class="bi bi-magic me-1"></i> Confirmar Pago (Simulación Demo)
                   </button>
                 </div>
-
               </div>
             </div>
+
           </div>
 
           <!-- SEGUIMIENTO EN VIVO DEL REPARTIDOR (RF-C09) -->
-          <div *ngIf="pedido.estado === 'EN_CAMINO' && pedido.tipoEntrega === 'DELIVERY'" class="mt-4">
-            <h6 class="fw-bold text-pollos-red mb-2"><i class="bi bi-geo-alt-fill"></i> Tu pedido va en camino</h6>
-            <div class="mapa-seguimiento rounded overflow-hidden shadow-sm border" [id]="'seguimiento-' + pedido.id"></div>
+          <div *ngIf="pedido.estado === 'EN_CAMINO' && pedido.tipoEntrega === 'DELIVERY'" class="mt-4 pt-3 border-top">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <h6 class="fw-bold text-pollos-red mb-0">
+                <i class="bi bi-geo-alt-fill me-1"></i> Repartidor en Camino (GPS en Vivo)
+              </h6>
+              <span class="tracking-status-badge text-success">
+                <span class="live-pulse-dot"></span> Señal Activa
+              </span>
+            </div>
+            
+            <div class="mapa-seguimiento mt-2" [id]="'seguimiento-' + pedido.id"></div>
+            
             <small class="d-block mt-2 fw-semibold" [ngClass]="ubicaciones()[pedido.id] ? 'text-success' : 'text-muted'">
-              <i class="bi bi-broadcast"></i> {{ textoSeguimiento(pedido.id) }}
+              <i class="bi bi-broadcast me-1"></i> {{ textoSeguimiento(pedido.id) }}
             </small>
           </div>
+
         </div>
+
       </div>
     </div>
   </div>

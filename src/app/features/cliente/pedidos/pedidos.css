@@ -1,6 +1,87 @@
+/* ==========================================================================
+   ESTILOS DE MIS PEDIDOS & SEGUIMIENTO EN VIVO (CLIENTE)
+   ========================================================================== */
+
+.page-title {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--pollos-red);
+  letter-spacing: -0.02em;
+}
+
+.order-card {
+  border: 1px solid var(--pollos-border);
+  border-radius: var(--pollos-radius-lg);
+  background: var(--pollos-surface);
+  box-shadow: var(--pollos-shadow-sm);
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.order-card:hover {
+  box-shadow: var(--pollos-shadow-md);
+  border-color: rgba(200, 29, 37, 0.2);
+}
+
+.order-header {
+  background: var(--pollos-surface);
+  border-bottom: 1px solid var(--pollos-border);
+  padding: 1.15rem 1.5rem;
+}
+
+.order-summary-box {
+  background: var(--pollos-surface-subtle);
+  border: 1px solid var(--pollos-border);
+  border-radius: var(--pollos-radius-md);
+  padding: 1.25rem;
+}
 
 /* Mapa de seguimiento en vivo del repartidor */
 .mapa-seguimiento {
-  height: 280px;
+  height: 290px;
   width: 100%;
+  border-radius: var(--pollos-radius-md);
+  border: 1.5px solid var(--pollos-border);
+  box-shadow: var(--pollos-shadow-sm);
+  z-index: 1;
+}
+
+.tracking-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.825rem;
+  font-weight: 600;
+}
+
+.btn-mp {
+  background: #009ee3;
+  color: #FFFFFF !important;
+  border: none;
+  font-weight: 700;
+  border-radius: var(--pollos-radius-pill);
+  padding: 0.55rem 1.2rem;
+  box-shadow: 0 4px 12px rgba(0, 158, 227, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-mp:hover {
+  background: #0081ba;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 158, 227, 0.35);
+}
+
+.btn-demo-pay {
+  background: #FFFFFF;
+  color: var(--pollos-success-text) !important;
+  border: 1.5px solid var(--pollos-success);
+  font-weight: 700;
+  border-radius: var(--pollos-radius-pill);
+  padding: 0.55rem 1.2rem;
+  transition: all 0.2s ease;
+}
+
+.btn-demo-pay:hover {
+  background: var(--pollos-success-light);
+  transform: translateY(-1px);
 }

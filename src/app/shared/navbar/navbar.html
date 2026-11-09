@@ -1,70 +1,206 @@
-<nav class="navbar navbar-expand-lg bg-pollos-yellow navbar-light shadow-sm sticky-top">
-  <div class="container-fluid">
-    <a class="navbar-brand fw-bold d-flex align-items-center gap-2" [routerLink]="rutaInicio" style="color: #8b0000; cursor: pointer;">
-      <img src="/img/logo.png" alt="Logo Los Pollos Hermanos" height="40" style="object-fit: contain;">
-      Los Pollos Hermanos
+<nav class="pollos-navbar navbar navbar-expand-lg sticky-top">
+  <div class="container-fluid px-3 px-lg-4">
+    
+    <!-- Brand Logo -->
+    <a class="navbar-brand d-flex align-items-center gap-2" [routerLink]="rutaInicio">
+      <div class="brand-logo-wrapper">
+        <img src="/img/logo.png" alt="Logo Los Pollos Hermanos" class="brand-logo">
+      </div>
+      <div class="d-flex flex-column">
+        <span class="brand-title">Los Pollos Hermanos</span>
+        <span class="brand-subtitle d-none d-sm-inline">Sabor, Tradición y Ritmo</span>
+      </div>
     </a>
     
-    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
+    <!-- Mobile Toggle -->
+    <button class="navbar-toggler border-0 shadow-none px-2 py-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Navegación">
+      <i class="bi bi-list fs-2 text-dark"></i>
     </button>
     
+    <!-- Links & User Area -->
     <div class="collapse navbar-collapse" id="navbarContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3 gap-1">
+        
         <!-- Opciones para Cliente -->
         <ng-container *ngIf="user?.rol === 'CLIENTE'">
           <li class="nav-item">
-            <a class="nav-link fw-bold text-dark" routerLink="/cliente/home">Menú</a>
+            <a class="nav-link pollos-nav-link" routerLink="/cliente/home" routerLinkActive="active">
+              <i class="bi bi-grid me-1"></i> Menú Carta
+            </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link fw-bold text-dark" routerLink="/cliente/pedidos">Mis Pedidos</a>
+            <a class="nav-link pollos-nav-link" routerLink="/cliente/pedidos" routerLinkActive="active">
+              <i class="bi bi-bag-check me-1"></i> Mis Pedidos
+            </a>
           </li>
         </ng-container>
 
         <!-- Opciones para Cocinero -->
         <ng-container *ngIf="user?.rol === 'COCINERO'">
           <li class="nav-item">
-            <a class="nav-link fw-bold text-dark" routerLink="/cocina">Tablero Cocina</a>
+            <a class="nav-link pollos-nav-link" routerLink="/cocina" routerLinkActive="active">
+              <i class="bi bi-fire me-1"></i> Tablero Cocina
+            </a>
           </li>
         </ng-container>
 
         <!-- Opciones para Repartidor -->
         <ng-container *ngIf="user?.rol === 'REPARTIDOR'">
           <li class="nav-item">
-            <a class="nav-link fw-bold text-dark" routerLink="/reparto">Entregas</a>
+            <a class="nav-link pollos-nav-link" routerLink="/reparto" routerLinkActive="active">
+              <i class="bi bi-geo-alt me-1"></i> Entregas & Mapa
+            </a>
           </li>
         </ng-container>
         
         <!-- Opciones para Cajera -->
         <ng-container *ngIf="user?.rol === 'CAJERA'">
           <li class="nav-item">
-            <a class="nav-link fw-bold text-dark" routerLink="/caja">Punto de Venta</a>
+            <a class="nav-link pollos-nav-link" routerLink="/caja" routerLinkActive="active">
+              <i class="bi bi-receipt me-1"></i> Punto de Venta
+            </a>
           </li>
         </ng-container>
 
         <!-- Opciones para Administrador -->
         <ng-container *ngIf="user?.rol === 'ADMINISTRADOR'">
           <li class="nav-item">
-            <a class="nav-link fw-bold text-dark" routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Administración</a>
+            <a class="nav-link pollos-nav-link" routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+              <i class="bi bi-speedometer2 me-1"></i> Administración
+            </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link fw-bold text-dark" routerLink="/admin/whatsapp" routerLinkActive="active"><i class="bi bi-whatsapp"></i> Bot WhatsApp</a>
+            <a class="nav-link pollos-nav-link whatsapp-nav-item" routerLink="/admin/whatsapp" routerLinkActive="active">
+              <i class="bi bi-whatsapp text-success me-1"></i> Bot WhatsApp
+              <span class="live-pulse-dot"></span>
+            </a>
           </li>
         </ng-container>
       </ul>
       
-      <!-- Contenedor derecho (Botones de usuario) -->
-      <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center mt-3 mt-lg-0 gap-2">
+      <!-- Zona Derecha: Usuario / Auth -->
+      <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center gap-3 pt-2 pt-lg-0 border-top border-lg-0 mt-2 mt-lg-0">
+        
+        <!-- Invitado -->
         <ng-container *ngIf="!user">
-          <a routerLink="/login" class="btn btn-outline-dark w-100 w-lg-auto fw-bold">Ingresar</a>
-          <a routerLink="/registro" class="btn btn-dark w-100 w-lg-auto fw-bold">Registrarse</a>
+          <a routerLink="/login" class="btn btn-pollos-outline btn-sm px-3 w-100 w-lg-auto">
+            <i class="bi bi-box-arrow-in-right"></i> Ingresar
+          </a>
+          <a routerLink="/registro" class="btn btn-pollos-red btn-sm px-3 w-100 w-lg-auto">
+            Crear Cuenta
+          </a>
         </ng-container>
         
+        <!-- Usuario Logueado -->
         <ng-container *ngIf="user">
-          <span class="fw-bold me-lg-3 text-dark mb-2 mb-lg-0">Hola, {{ user.nombreCompleto }}</span>
-          <button (click)="logout()" class="btn btn-pollos-red btn-sm px-4 fw-bold w-100 w-lg-auto">Salir</button>
+          <!-- Badge interactivo de Usuario con separación amplia y soporte de clic para editar -->
+          <div class="user-profile-badge d-flex align-items-center gap-2"
+               (click)="abrirModalPerfil()"
+               role="button"
+               tabindex="0"
+               title="Haz clic para ver y editar tu cuenta">
+            <div class="user-avatar-circle">
+              <i class="bi bi-person-fill"></i>
+            </div>
+            <div class="d-flex flex-column text-start profile-text-wrapper">
+              <span class="user-name">{{ user.nombreCompleto }}</span>
+              <span class="user-role-pill">
+                {{ user.rol }}
+                <i class="bi bi-pencil-fill ms-1 opacity-75" style="font-size: 0.65rem;"></i>
+              </span>
+            </div>
+          </div>
+          
+          <button (click)="logout()" class="btn btn-pollos-outline btn-sm px-3 text-danger border-danger-subtle w-100 w-lg-auto" title="Cerrar Sesión">
+            <i class="bi bi-box-arrow-right"></i> Salir
+          </button>
         </ng-container>
+
       </div>
     </div>
   </div>
 </nav>
+
+<!-- Modal Flotante: Editar Cuenta de Usuario -->
+<div class="custom-modal-overlay" *ngIf="mostrarModalPerfil">
+  <div class="custom-modal-content text-start p-4" style="max-width: 480px;">
+    
+    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+      <h5 class="fw-bold mb-0 text-dark d-flex align-items-center gap-2">
+        <i class="bi bi-person-gear text-pollos-red fs-4"></i> Mi Cuenta
+      </h5>
+      <button type="button" class="btn-close shadow-none" (click)="cerrarModalPerfil()"></button>
+    </div>
+
+    <!-- Spinner cargando datos -->
+    <div *ngIf="perfilCargando" class="text-center py-4">
+      <div class="spinner-border text-pollos-red mb-2" role="status"></div>
+      <p class="small text-muted mb-0">Cargando la información de tu perfil...</p>
+    </div>
+
+    <!-- Formulario de Edición -->
+    <div *ngIf="!perfilCargando">
+      
+      <div *ngIf="mensajeExito" class="alert alert-success py-2 small fw-bold d-flex align-items-center gap-2">
+        <i class="bi bi-check-circle-fill fs-5"></i> {{ mensajeExito }}
+      </div>
+
+      <div *ngIf="mensajeError" class="alert alert-danger py-2 small fw-bold d-flex align-items-center gap-2">
+        <i class="bi bi-exclamation-triangle-fill fs-5"></i> {{ mensajeError }}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small fw-bold text-dark">Nombre Completo</label>
+        <div class="input-group input-group-sm">
+          <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
+          <input type="text" class="form-control" [(ngModel)]="datosPerfil.nombre" placeholder="Tu nombre completo">
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small fw-bold text-dark">Correo Electrónico (Solo lectura)</label>
+        <div class="input-group input-group-sm">
+          <span class="input-group-text bg-light text-muted"><i class="bi bi-envelope"></i></span>
+          <input type="email" class="form-control bg-light" [value]="datosPerfil.email" disabled>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small fw-bold text-dark">Teléfono / WhatsApp</label>
+        <div class="input-group input-group-sm">
+          <span class="input-group-text bg-light text-muted"><i class="bi bi-telephone"></i></span>
+          <input type="tel" class="form-control" [(ngModel)]="datosPerfil.telefono" placeholder="Ej: 987654321">
+        </div>
+        <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">Usado para coordinar tu entrega y avisos.</small>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small fw-bold text-dark">Dirección Principal</label>
+        <div class="input-group input-group-sm">
+          <span class="input-group-text bg-light text-muted"><i class="bi bi-geo-alt"></i></span>
+          <input type="text" class="form-control" [(ngModel)]="datosPerfil.direccion" placeholder="Ej: Urb. San Isidro B-12">
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label small fw-bold text-dark">Nueva Contraseña (Opcional)</label>
+        <div class="input-group input-group-sm">
+          <span class="input-group-text bg-light text-muted"><i class="bi bi-key"></i></span>
+          <input type="password" class="form-control" [(ngModel)]="datosPerfil.password" placeholder="Dejar en blanco para conservar la actual">
+        </div>
+        <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">Mínimo 6 caracteres si deseas cambiarla.</small>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 pt-2 border-top">
+        <button type="button" class="btn btn-light btn-sm fw-bold border px-3" (click)="cerrarModalPerfil()" [disabled]="guardandoPerfil">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-pollos-red btn-sm fw-bold px-4" (click)="guardarPerfil()" [disabled]="guardandoPerfil">
+          <i class="bi bi-check2-circle me-1" *ngIf="!guardandoPerfil"></i>
+          {{ guardandoPerfil ? 'Guardando...' : 'Guardar Cambios' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

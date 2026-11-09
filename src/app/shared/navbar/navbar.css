@@ -1,0 +1,166 @@
+/* ==========================================================================
+   NAVBAR MODERNA - LOS POLLOS HERMANOS
+   ========================================================================== */
+
+.pollos-navbar {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--pollos-border);
+  box-shadow: 0 4px 20px rgba(28, 25, 23, 0.04);
+  padding: 0.65rem 0;
+  transition: all 0.25s ease;
+  z-index: 1030;
+}
+
+/* Brand Logo y Tipografía */
+.navbar-brand {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.brand-logo-wrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--pollos-surface);
+  border: 1.5px solid rgba(245, 158, 11, 0.3);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.navbar-brand:hover .brand-logo-wrapper {
+  transform: rotate(6deg) scale(1.05);
+}
+
+.brand-logo {
+  height: 38px;
+  width: 38px;
+  object-fit: contain;
+}
+
+.brand-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--pollos-red);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.brand-subtitle {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--pollos-gold-text);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Enlaces de Navegación */
+.pollos-nav-link {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--pollos-text-secondary) !important;
+  padding: 0.5rem 0.9rem !important;
+  border-radius: var(--pollos-radius-pill);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+}
+
+.pollos-nav-link:hover {
+  color: var(--pollos-red) !important;
+  background-color: var(--pollos-surface-hover);
+}
+
+.pollos-nav-link.active {
+  color: var(--pollos-red) !important;
+  background-color: var(--pollos-red-light);
+  font-weight: 700;
+}
+
+/* WhatsApp Nav Item con Pulso Verde */
+.whatsapp-nav-item {
+  position: relative;
+}
+
+.live-pulse-dot {
+  width: 7px;
+  height: 7px;
+  background-color: var(--pollos-success);
+  border-radius: 50%;
+  margin-left: 6px;
+  display: inline-block;
+  box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+  animation: pulseGreen 1.8s infinite;
+}
+
+@keyframes pulseGreen {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* Perfil de Usuario Cómodo, Amplio y Sin Encogimiento */
+.user-profile-badge {
+  background: #FFFFFF;
+  border: 1.5px solid var(--pollos-border);
+  border-radius: var(--pollos-radius-pill);
+  padding: 0.35rem 1.15rem !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(28, 25, 23, 0.04);
+}
+
+.user-profile-badge[role="button"] {
+  cursor: pointer;
+}
+
+.user-profile-badge:hover {
+  background: var(--pollos-surface-subtle);
+  border-color: var(--pollos-red);
+  box-shadow: 0 4px 12px rgba(200, 29, 37, 0.12);
+  transform: translateY(-1px);
+}
+
+.profile-text-wrapper {
+  white-space: nowrap;
+  overflow: visible;
+}
+
+.user-avatar-circle {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pollos-gold) 0%, var(--pollos-red) 100%);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  box-shadow: 0 2px 6px rgba(200, 29, 37, 0.2);
+}
+
+.user-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--pollos-text-primary);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.user-role-pill {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--pollos-red);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}

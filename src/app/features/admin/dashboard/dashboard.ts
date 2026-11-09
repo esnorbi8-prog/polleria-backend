@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ProductoService, Producto } from '../../../core/services/producto.service';
+import { CloudinaryService } from '../../../core/services/cloudinary.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
@@ -20,6 +21,8 @@ export class Dashboard implements OnInit {
   private pedidoService = inject(PedidoService);
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
+  private cloudinaryService = inject(CloudinaryService);
+  subiendoImagen = false;
 
   productos = signal<Producto[]>([]);
   
@@ -157,14 +160,23 @@ export class Dashboard implements OnInit {
     };
   }
 
-  onFileSelected(event: any) {
+  async onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.imagenBase64 = e.target.result;
-      };
-      reader.readAsDataURL(file);
+      this.imagenBase64 = URL.createObjectURL(file);
+      this.subiendoImagen = true;
+      this.cdr.detectChanges();
+
+      try {
+        const urlCloudinary = await this.cloudinaryService.subirImagen(file);
+        this.imagenBase64 = urlCloudinary;
+        this.subiendoImagen = false;
+        this.cdr.detectChanges();
+      } catch (err) {
+        console.error('Error al subir a Cloudinary:', err);
+        this.subiendoImagen = false;
+        this.cdr.detectChanges();
+      }
     }
   }
 

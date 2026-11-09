@@ -130,15 +130,15 @@ export class Pedidos implements OnInit, OnDestroy {
 
   getEstadoClase(estado: string): string {
     const clases: Record<string, string> = {
-      'RECIBIDO': 'bg-secondary',
-      'PAGADO': 'bg-primary',
-      'EN_PREPARACION': 'bg-warning text-dark',
-      'LISTO': 'bg-info text-dark',
-      'EN_CAMINO': 'bg-pollos-yellow text-dark',
-      'ENTREGADO': 'bg-success',
-      'CANCELADO': 'bg-danger'
+      'RECIBIDO': 'badge-status badge-status-pendiente',
+      'PAGADO': 'badge-status badge-status-cocina',
+      'EN_PREPARACION': 'badge-status badge-status-cocina',
+      'LISTO': 'badge-status badge-status-camino',
+      'EN_CAMINO': 'badge-status badge-status-camino',
+      'ENTREGADO': 'badge-status badge-status-entregado',
+      'CANCELADO': 'badge-status badge-status-cancelado'
     };
-    return clases[estado] || 'bg-secondary';
+    return clases[estado] || 'badge-status badge-status-pendiente';
   }
 
   getEstadoLabel(estado: string): string {

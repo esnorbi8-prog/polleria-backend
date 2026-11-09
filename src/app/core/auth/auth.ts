@@ -24,15 +24,20 @@ export class Auth {
     this.loadUserFromStorage();
   }
 
+  /**
+   * Carga el usuario desde sessionStorage.
+   * Al usar sessionStorage, si el usuario cierra la pestaña o ventana,
+   * la sesión se destruye automáticamente por seguridad.
+   */
   private loadUserFromStorage() {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      const userStr = localStorage.getItem('polleria_user');
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      const userStr = sessionStorage.getItem('polleria_user');
       if (userStr) {
         try {
           this.currentUser.set(JSON.parse(userStr));
         } catch (e) {
-          console.error("Error parsing user from localStorage", e);
-          localStorage.removeItem('polleria_user');
+          console.error("Error parsing user from sessionStorage", e);
+          sessionStorage.removeItem('polleria_user');
         }
       }
     }
@@ -42,8 +47,8 @@ export class Auth {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap(res => {
         if (res.token) {
-          if (typeof window !== 'undefined' && window.localStorage) {
-            localStorage.setItem('polleria_user', JSON.stringify(res));
+          if (typeof window !== 'undefined' && window.sessionStorage) {
+            sessionStorage.setItem('polleria_user', JSON.stringify(res));
           }
           this.currentUser.set(res);
           this.redirectByRole(res.rol);
@@ -57,8 +62,8 @@ export class Auth {
   }
 
   logout() {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.removeItem('polleria_user');
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      sessionStorage.removeItem('polleria_user');
     }
     this.currentUser.set(null);
     this.router.navigate(['/login']);
@@ -73,8 +78,19 @@ export class Auth {
     const user = this.currentUser();
     if (user) {
       const updatedUser = { ...user, token: newToken };
-      if (typeof window !== 'undefined' && window.localStorage) {
-        localStorage.setItem('polleria_user', JSON.stringify(updatedUser));
+      if (typeof window !== 'undefined' && window.sessionStorage) {
+        sessionStorage.setItem('polleria_user', JSON.stringify(updatedUser));
+      }
+      this.currentUser.set(updatedUser);
+    }
+  }
+
+  updateCurrentUser(updates: Partial<LoginResponse>) {
+    const user = this.currentUser();
+    if (user) {
+      const updatedUser = { ...user, ...updates };
+      if (typeof window !== 'undefined' && window.sessionStorage) {
+        sessionStorage.setItem('polleria_user', JSON.stringify(updatedUser));
       }
       this.currentUser.set(updatedUser);
     }

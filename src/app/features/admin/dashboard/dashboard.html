@@ -181,13 +181,24 @@
       <div class="row">
         <!-- Columna de Imagen -->
         <div class="col-md-4 text-center mb-3">
-          <label class="form-label fw-bold">Foto del Plato</label>
-          <div class="border rounded bg-light mb-2 d-flex align-items-center justify-content-center overflow-hidden" 
+          <label class="form-label fw-bold d-flex align-items-center justify-content-center gap-1">
+            <i class="bi bi-cloud-arrow-up text-primary"></i> Foto del Plato (Cloudinary)
+          </label>
+          <div class="border rounded bg-light mb-2 d-flex align-items-center justify-content-center overflow-hidden position-relative" 
                style="height: 200px;">
             <img *ngIf="imagenBase64" [src]="imagenBase64" class="w-100 h-100" style="object-fit: cover;">
-            <i *ngIf="!imagenBase64" class="bi bi-camera text-muted" style="font-size: 3rem;"></i>
+            <i *ngIf="!imagenBase64 && !subiendoImagen" class="bi bi-camera text-muted" style="font-size: 3rem;"></i>
+            
+            <!-- Overlay Subiendo a Cloudinary -->
+            <div *ngIf="subiendoImagen" class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-75 d-flex flex-column align-items-center justify-content-center text-white p-2" style="z-index: 5;">
+              <div class="spinner-border spinner-border-sm text-warning mb-2" role="status"></div>
+              <small class="fw-bold">Subiendo a Cloudinary ☁️...</small>
+            </div>
           </div>
-          <input type="file" class="form-control form-control-sm" accept="image/*" (change)="onFileSelected($event)">
+          <input type="file" class="form-control form-control-sm" accept="image/*" (change)="onFileSelected($event)" [disabled]="subiendoImagen">
+          <small *ngIf="imagenBase64 && imagenBase64.startsWith('https://res.cloudinary.com')" class="text-success small fw-bold d-block mt-1">
+            <i class="bi bi-cloud-check-fill"></i> Alojada en Cloudinary
+          </small>
         </div>
         
         <!-- Columna de Datos -->
@@ -213,8 +224,8 @@
           
           <div class="d-flex justify-content-end gap-2 mt-3">
             <button class="btn btn-light border fw-bold" (click)="cancelarEdicion()">Cancelar</button>
-            <button class="btn btn-pollos-red fw-bold px-4" (click)="guardarProducto()">
-              <i class="bi bi-save"></i> Guardar Plato
+            <button class="btn btn-pollos-red fw-bold px-4" (click)="guardarProducto()" [disabled]="subiendoImagen">
+              <i class="bi bi-save"></i> {{ subiendoImagen ? 'Subiendo foto...' : 'Guardar Plato' }}
             </button>
           </div>
         </div>
